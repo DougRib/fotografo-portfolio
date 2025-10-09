@@ -1,0 +1,247 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Roles do sistema
+enum UserRole {
+  ADMIN
+  EDITOR
+}
+
+// Status dos projetos
+enum ProjectStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// ============================================
+// USUÁRIOS E AUTENTICAÇÃO
+// ============================================
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String   // Hash da senha (NUNCA armazene senha em texto puro!)
+  role      UserRole @default(EDITOR)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@map("users")
+}
+
+// ============================================
+// PROJETOS E PORTFÓLIO
+// ============================================
+
+model Project {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  title       String
+  summary     String?       @db.Text
+  coverUrl    String?
+  status      ProjectStatus @default(DRAFT)
+  publishedAt DateTime?
+  
+  // SEO
+  seoTitle    String?
+  seoDesc     String?       @db.Text
+  
+  // Relações
+  gallery     Gallery?
+  categories  ProjectCategory[]
+  tags        ProjectTag[]
+  leads       Lead[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([status])
+  @@index([publishedAt])
+  @@map("projects")
+}
+
+// ============================================
+// GALERIAS E IMAGENS
+// ============================================
+
+model Gallery {
+  id        String  @id @default(cuid())
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  images    Image[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("galleries")
+}
+
+model Image {
+  id        String  @id @default(cuid())
+  galleryId String
+  gallery   Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  
+  // URLs e dimensões
+  url       String
+  thumbUrl  String?
+  width     Int?
+  height    Int?
+  
+  // Metadados
+  order     Int     @default(0)
+  alt       String?
+  caption   String? @db.Text
+  exifJson  String? @db.Text // JSON string com dados EXIF
+  
+  createdAt DateTime @default(now())
+
+  @@index([galleryId])
+  @@index([order])
+  @@map("images")
+}
+
+// ============================================
+// CATEGORIAS E TAGS
+// ============================================
+
+model Category {
+  id       String            @id @default(cuid())
+  name     String            @unique
+  slug     String            @unique
+  projects ProjectCategory[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@map("categories")
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  name     String       @unique
+  slug     String       @unique
+  projects ProjectTag[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@map("tags")
+}
+
+// Tabelas de junção N-N
+model ProjectCategory {
+  projectId  String
+  categoryId String
+  
+  project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  assignedAt DateTime @default(now())
+
+  @@id([projectId, categoryId])
+  @@index([projectId])
+  @@index([categoryId])
+  @@map("project_categories")
+}
+
+model ProjectTag {
+  projectId String
+  tagId     String
+  
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  assignedAt DateTime @default(now())
+
+  @@id([projectId, tagId])
+  @@index([projectId])
+  @@index([tagId])
+  @@map("project_tags")
+}
+
+// ============================================
+// DEPOIMENTOS
+// ============================================
+
+model Testimonial {
+  id        String  @id @default(cuid())
+  author    String
+  role      String? // Ex: "Noiva", "Empresário", etc.
+  avatarUrl String?
+  text      String  @db.Text
+  visible   Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([visible])
+  @@map("testimonials")
+}
+
+// ============================================
+// SERVIÇOS/PACOTES
+// ============================================
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @db.Text
+  priceFrom   Int?     // Preço em centavos (ex: 150000 = R$ 1.500,00)
+  features    String[] // Array de features do pacote
+  active      Boolean  @default(true)
+  order       Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active])
+  @@index([order])
+  @@map("services")
+}
+
+// ============================================
+// LEADS E CONTATOS
+// ============================================
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String   @db.Text
+  source    String?  // Ex: "formulario-home", "formulario-projeto", etc.
+  
+  // Referência opcional a um projeto específico
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  
+  // Campos adicionais do formulário de orçamento
+  serviceType      String? // Tipo de serviço desejado
+  eventDate        DateTime? // Data do evento
+  eventLocation    String? // Local do evento
+  estimatedBudget  String? // Faixa de orçamento estimado
+  referenceFileUrl String? // URL do arquivo de referência enviado
+  
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([createdAt])
+  @@index([source])
+  @@map("leads")
+}

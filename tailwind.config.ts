@@ -2,6 +2,7 @@ import type { Config } from 'tailwindcss'
 import tailwindcssAnimate from 'tailwindcss-animate'
 
 const config: Config = {
+  darkMode: ['class'],
   // Indicar onde o Tailwind deve procurar classes CSS
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -9,9 +10,6 @@ const config: Config = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  
-  // Dark mode via classe (controlado pelo next-themes)
-  darkMode: ['class'],
   
   theme: {
     extend: {
@@ -132,7 +130,6 @@ const config: Config = {
   plugins: [
     tailwindcssAnimate, // Adiciona classes de animação úteis
   ],
-}
 }
 
 export default config

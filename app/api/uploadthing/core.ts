@@ -14,17 +14,6 @@ import sharp from 'sharp'
 
 const f = createUploadthing()
 
-// Função auxiliar para verificar autenticação (implementar conforme seu sistema de auth)
-// Por enquanto, vamos simular uma verificação básica
-async function authenticate(req: Request) {
-  // TODO: Implementar verificação real de autenticação
-  // Exemplo: verificar cookie de sessão, JWT token, etc.
-  
-  // Por enquanto, retornamos um usuário mockado
-  // Em produção, isso deve verificar se o usuário está autenticado
-  return { id: 'user_123', role: 'ADMIN' }
-}
-
 /**
  * File Router - define os tipos de upload permitidos
  */
@@ -41,9 +30,10 @@ export const uploadThingFileRouter = {
       maxFileCount: 10,
     },
   })
-    .middleware(async ({ req }) => {
+    .middleware(async () => {
       // Verificar se usuário está autenticado e tem permissão
-      const user = await authenticate(req)
+      // TODO: Implementar verificação real via NextAuth
+      const user = { id: 'user_123', role: 'ADMIN' }
       
       if (!user) {
         throw new UploadThingError('Não autorizado. Faça login para fazer upload.')
@@ -74,8 +64,8 @@ export const uploadThingFileRouter = {
         // Obter dimensões da imagem
         const imageMetadata = await sharp(buffer).metadata()
         
-        // Gerar thumbnail (400x300)
-        const thumbnail = await sharp(buffer)
+        // Gerar thumbnail (400x300) - não usado por enquanto mas disponível
+        await sharp(buffer)
           .resize(400, 300, {
             fit: 'cover',
             position: 'center',
@@ -117,8 +107,9 @@ export const uploadThingFileRouter = {
       maxFileCount: 1,
     },
   })
-    .middleware(async ({ req }) => {
-      const user = await authenticate(req)
+    .middleware(async () => {
+      // TODO: Implementar verificação real via NextAuth
+      const user = { id: 'user_123', role: 'ADMIN' }
       
       if (!user) {
         throw new UploadThingError('Não autorizado')
@@ -129,7 +120,7 @@ export const uploadThingFileRouter = {
     .onUploadComplete(async ({ metadata, file }) => {
       console.log('✅ Avatar enviado por:', metadata.userId)
       
-      // Processar avatar (redimensionar para 200x200)
+      // Processar avatar (redimensionar para 200x200) - não usado por enquanto
       try {
         const response = await fetch(file.url)
         const buffer = Buffer.from(await response.arrayBuffer())
@@ -154,20 +145,20 @@ export const uploadThingFileRouter = {
    * Upload de arquivo de referência no formulário de contato
    * - Imagens ou PDFs
    * - Apenas 1 arquivo
-   * - Máximo 10MB
+   * - Máximo 8MB
    */
   referenceFile: f({
-    image: { maxFileSize: '10MB', maxFileCount: 1 },
-    pdf: { maxFileSize: '10MB', maxFileCount: 1 },
+    image: { maxFileSize: '8MB', maxFileCount: 1 },
+    pdf: { maxFileSize: '8MB', maxFileCount: 1 },
   })
-    .middleware(async ({ req }) => {
+    .middleware(async () => {
       // Este endpoint não requer autenticação (formulário público)
       return { 
         source: 'contact-form',
         uploadedAt: new Date().toISOString(),
       }
     })
-    .onUploadComplete(async ({ metadata, file }) => {
+    .onUploadComplete(async ({ file }) => {
       console.log('✅ Arquivo de referência enviado:', file.name)
       
       return {
@@ -180,17 +171,18 @@ export const uploadThingFileRouter = {
   /**
    * Upload de cover do projeto
    * - Apenas 1 imagem
-   * - Máximo 5MB
+   * - Máximo 8MB
    * - Para ser usada como capa/thumbnail do projeto
    */
   projectCover: f({
     image: { 
-      maxFileSize: '5MB',
+      maxFileSize: '8MB',
       maxFileCount: 1,
     },
   })
-    .middleware(async ({ req }) => {
-      const user = await authenticate(req)
+    .middleware(async () => {
+      // TODO: Implementar verificação real via NextAuth
+      const user = { id: 'user_123', role: 'ADMIN' }
       
       if (!user) {
         throw new UploadThingError('Não autorizado')
@@ -208,7 +200,7 @@ export const uploadThingFileRouter = {
         
         const imageMetadata = await sharp(buffer).metadata()
         
-        // Gerar thumbnail para cards (600x400)
+        // Gerar thumbnail para cards (600x400) - não usado por enquanto
         await sharp(buffer)
           .resize(600, 400, {
             fit: 'cover',
@@ -221,6 +213,7 @@ export const uploadThingFileRouter = {
           url: file.url,
           width: imageMetadata.width,
           height: imageMetadata.height,
+          uploadedBy: metadata.userId,
         }
       } catch (error) {
         console.error('❌ Erro ao processar cover:', error)

@@ -70,18 +70,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-violet-600 to-indigo-600 p-4">
-      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20" />
+    <div className="min-h-screen flex items-center justify-center bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)] p-4">
+      <div className="absolute inset-0  opacity-20" />
       
-      <Card className="w-full max-w-md relative z-10 shadow-2xl">
+      <Card className="w-full max-w-md relative bg-[linear-gradient(180deg,#dedede,#ffffff)]  z-10 shadow-2xl glass">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
             <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
               <Camera className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">Dashboard</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold dark:text-gray-800">Dashboard</CardTitle>
+          <CardDescription className='dark:text-gray-800'>
             Entre com suas credenciais para acessar o painel administrativo
           </CardDescription>
         </CardHeader>
@@ -106,7 +106,7 @@ export default function LoginPage() {
             </AlertDescription>
           </Alert>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 dark:text-gray-800">
             {/* Campo Email */}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -160,7 +160,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <Link
               href="/"
-              className="text-sm text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+              className="text-sm dark:text-gray-800 hover:text-primary underline-offset-4 hover:underline"
             >
               ← Voltar para o site
             </Link>

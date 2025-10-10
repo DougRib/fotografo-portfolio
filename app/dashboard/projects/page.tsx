@@ -29,7 +29,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 import { ProjectActions } from '@/components/project-actions'
 import { prisma } from '@/lib/prisma'
-import { ProjectStatus } from '@prisma/client'
+import { ProjectStatus, Prisma } from '@prisma/client'
 import { formatDate } from '@/lib/utils'
 import { Plus, FolderOpen } from 'lucide-react'
 
@@ -49,7 +49,7 @@ interface ProjectsPageProps {
  * Aceita filtros opcionais de status e busca por texto
  */
 async function getProjects(searchParams: ProjectsPageProps['searchParams']) {
-  const where: any = {}
+  const where: Prisma.ProjectWhereInput = {}
 
   // Filtrar por status se fornecido
   if (searchParams.status) {

@@ -9,7 +9,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
-import { ProjectStatus } from '@prisma/client'
+import { ProjectStatus, Prisma } from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -23,20 +23,24 @@ export const metadata: Metadata = {
 export const revalidate = 1800
 
 interface PortfolioPageProps {
-  searchParams: {
+  searchParams: Promise<{
     category?: string
     tag?: string
     page?: string
-  }
+  }>
 }
 
-async function getPortfolioData(searchParams: PortfolioPageProps['searchParams']) {
+async function getPortfolioData(searchParams: {
+  category?: string
+  tag?: string
+  page?: string
+}) {
   const page = parseInt(searchParams.page || '1')
   const perPage = 12
   const skip = (page - 1) * perPage
 
   // Construir filtros
-  const where: any = {
+  const where: Prisma.ProjectWhereInput = {
     status: ProjectStatus.PUBLISHED,
   }
 
@@ -105,15 +109,16 @@ async function getPortfolioData(searchParams: PortfolioPageProps['searchParams']
 }
 
 export default async function PortfolioPage({ searchParams }: PortfolioPageProps) {
-  const data = await getPortfolioData(searchParams)
+  const resolvedSearchParams = await searchParams
+  const data = await getPortfolioData(resolvedSearchParams)
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <section className="border-b bg-muted/50">
+      <section className="border-b bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)]">
         <div className="container mx-auto px-4 py-16">
           <h1 className="text-4xl font-bold mb-4">Portfólio</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl">
+          <p className="text-lg text-secondary-foreground max-w-2xl">
             Explore nossa coleção de trabalhos em fotografia profissional.
             Cada projeto conta uma história única.
           </p>
@@ -124,15 +129,15 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar - Filtros */}
           <aside className="lg:w-64 shrink-0">
-            <div className="sticky top-4 space-y-6">
+            <div className="sticky top-4 space-y-4">
               {/* Categorias */}
               <div>
                 <h3 className="font-semibold mb-3">Categorias</h3>
                 <div className="space-y-2">
                   <Link href="/portfolio">
                     <Button
-                      variant={!searchParams.category ? 'secondary' : 'ghost'}
-                      className="w-full justify-start"
+                      variant={!resolvedSearchParams.category ? 'secondary' : 'ghost'}
+                      className="w-full justify-start mb-1"
                     >
                       Todas
                     </Button>
@@ -144,11 +149,11 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
                     >
                       <Button
                         variant={
-                          searchParams.category === category.slug
+                          resolvedSearchParams.category === category.slug
                             ? 'secondary'
                             : 'ghost'
                         }
-                        className="w-full justify-start"
+                        className="w-full justify-start mb-1"
                       >
                         {category.name}
                       </Button>
@@ -165,7 +170,7 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
                     <Link key={tag.id} href={`/portfolio?tag=${tag.slug}`}>
                       <Button
                         variant={
-                          searchParams.tag === tag.slug ? 'default' : 'outline'
+                          resolvedSearchParams.tag === tag.slug ? 'default' : 'outline'
                         }
                         size="sm"
                       >
@@ -177,7 +182,7 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
               </div>
 
               {/* Limpar filtros */}
-              {(searchParams.category || searchParams.tag) && (
+              {(resolvedSearchParams.category || resolvedSearchParams.tag) && (
                 <Link href="/portfolio">
                   <Button variant="outline" className="w-full">
                     Limpar filtros
@@ -204,7 +209,7 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
                       href={`/portfolio/${project.slug}`}
                       className="group"
                     >
-                      <Card className="overflow-hidden hover:shadow-xl transition-shadow">
+                      <Card className="overflow-hidden hover:shadow-xl glass transition-shadow">
                         <div className="relative aspect-[4/3]">
                           {project.coverUrl && (
                             <Image
@@ -247,7 +252,7 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
                     {data.page > 1 && (
                       <Link
                         href={`/portfolio?${new URLSearchParams({
-                          ...searchParams,
+                          ...resolvedSearchParams,
                           page: (data.page - 1).toString(),
                         })}`}
                       >
@@ -261,7 +266,7 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
                           <Link
                             key={pageNum}
                             href={`/portfolio?${new URLSearchParams({
-                              ...searchParams,
+                              ...resolvedSearchParams,
                               page: pageNum.toString(),
                             })}`}
                           >
@@ -281,7 +286,7 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
                     {data.page < data.totalPages && (
                       <Link
                         href={`/portfolio?${new URLSearchParams({
-                          ...searchParams,
+                          ...resolvedSearchParams,
                           page: (data.page + 1).toString(),
                         })}`}
                       >
@@ -292,7 +297,7 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
                 )}
 
                 {/* Informação sobre total */}
-                <p className="text-center text-sm text-muted-foreground mt-8">
+                <p className="text-center text-sm text-secondary-foreground mt-8">
                   Mostrando {data.projects.length} de {data.total} projetos
                 </p>
               </>
@@ -302,9 +307,4 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
       </div>
     </div>
   )
-}
-
-// Componente Skeleton para loading
-function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse bg-muted rounded ${className}`} />
 }

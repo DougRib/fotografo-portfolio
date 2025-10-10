@@ -25,14 +25,14 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative h-[50vh] min-h-[400px] bg-gradient-to-br from-purple-600 via-violet-600 to-indigo-600">
+      <section className="relative h-[50vh] min-h-[400px] bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)]">
         <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20" />
         <div className="container relative z-10 mx-auto px-4 h-full flex items-center">
           <div className="max-w-3xl">
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="text-5xl md:text-6xl font-bold text-secondary-foreground mb-6">
               Sobre Mim
             </h1>
-            <p className="text-xl text-purple-100">
+            <p className="text-xl text-secondary-foreground">
               Paixão por capturar momentos autênticos e criar memórias inesquecíveis
             </p>
           </div>
@@ -214,17 +214,20 @@ export default function AboutPage() {
         </div>
 
         {/* CTA Final */}
-        <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 border-purple-200 dark:border-purple-800">
+        <Card className="bg-[linear-gradient(90deg,#edede9,#f5ebe0,#d5bdaf)] dark:bg-[linear-gradient(90deg,#cdc1b6,#a69e9a,#26292c)] border-primary dark:border-primary">
           <CardContent className="pt-12 pb-12 text-center">
             <h3 className="text-3xl font-bold mb-4">
               Vamos criar algo incrível juntos?
             </h3>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-lg text-secondary-foreground mb-8 max-w-2xl mx-auto">
               Estou pronto para capturar seus momentos mais especiais com criatividade, 
               profissionalismo e dedicação.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg">
+              <Button 
+                asChild size="lg"
+                className='hover:bg-primary/60'
+              >
                 <Link href="/#contato">Solicitar Orçamento</Link>
               </Button>
               <Button asChild size="lg" variant="outline">

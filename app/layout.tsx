@@ -14,6 +14,8 @@ import { Inter, Playfair_Display } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
+import { SiteNavbar } from '@/components/navbar'
+import { Footer } from '@/components/footer'
 
 // Configurar fontes do Google Fonts
 const inter = Inter({
@@ -122,7 +124,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <SiteNavbar />
           {children}
+          <Footer />
           <Toaster position="top-right" richColors closeButton />
         </ThemeProvider>
 

@@ -28,9 +28,11 @@ const updateProjectSchema = z.object({
 // GET - Buscar projeto por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params
+    
     const project = await prisma.project.findUnique({
       where: { id: params.id },
       include: {
@@ -74,9 +76,11 @@ export async function GET(
 // PATCH - Atualizar projeto
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params
+    
     // TODO: Adicionar verificação de autenticação
     // const session = await getServerSession()
     // if (!session) {
@@ -122,7 +126,18 @@ export async function PATCH(
     }
 
     // Preparar dados para atualização
-    const updateData: any = {
+    const updateData: {
+      title?: string
+      slug?: string
+      summary?: string | null
+      coverUrl?: string | null
+      status?: ProjectStatus
+      seoTitle?: string | null
+      seoDesc?: string | null
+      publishedAt?: Date | null
+      categories?: { create: Array<{ categoryId: string }> }
+      tags?: { create: Array<{ tagId: string }> }
+    } = {
       title: validatedData.title,
       slug: validatedData.slug,
       summary: validatedData.summary,
@@ -217,9 +232,11 @@ export async function PATCH(
 // DELETE - Remover projeto
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params
+    
     // TODO: Adicionar verificação de autenticação
     // const session = await getServerSession()
     // if (!session || session.user.role !== 'ADMIN') {

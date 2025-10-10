@@ -103,7 +103,7 @@ export function ContactForm() {
   }
 
   return (
-    <Card>
+    <Card className='bg-[linear-gradient(180deg,#dedede,#ffffff)] border-primary text-primary-foreground'>
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Nome */}

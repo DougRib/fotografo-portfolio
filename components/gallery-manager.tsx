@@ -31,8 +31,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { useDropzone } from 'react-dropzone'
-import { UploadButton, UploadDropzone } from '@uploadthing/react'
+import { UploadDropzone } from '@uploadthing/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -45,20 +44,29 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+} from './ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from './ui/alert-dialog'
+import { Alert, AlertDescription } from './ui/alert'
 import { 
   Upload, 
   X, 
   Edit2, 
-  GripVertical, 
   Loader2,
   AlertCircle,
   Image as ImageIcon 
 } from 'lucide-react'
 import { toast } from 'sonner'
+import type { UploadThingFileRouter } from '@/app/api/uploadthing/core'
 
-// Tipo para as imagens
 interface GalleryImage {
   id: string
   url: string
@@ -79,15 +87,12 @@ interface GalleryManagerProps {
 export function GalleryManager({ projectId, galleryId, images: initialImages }: GalleryManagerProps) {
   const router = useRouter()
   const [images, setImages] = useState<GalleryImage[]>(initialImages)
-  const [isUploading, setIsUploading] = useState(false)
+  const [, setIsUploading] = useState(false)
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null)
+  const [imageToDelete, setImageToDelete] = useState<string | null>(null)
 
-  /**
-   * Função para criar galeria se não existir
-   * Necessário antes do primeiro upload
-   */
   async function ensureGalleryExists(): Promise<string> {
     if (galleryId) return galleryId
 
@@ -110,14 +115,28 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
   }
 
   /**
-   * Callback após upload bem-sucedido
-   * Adiciona imagens na galeria no banco de dados
+   * ✅ CORRIGIDO: Agora tipamos explicitamente o parâmetro files
+   * O tipo ClientUploadedFileData vem do @uploadthing/react
+   * Isso resolve o aviso sobre implicit any
    */
-  async function handleUploadComplete(files: any[]) {
+  async function handleUploadComplete(
+    files: Array<{ 
+      url: string
+      name: string
+      size: number
+      key: string
+      uploadedBy?: string
+      fileUrl?: string
+      fileName?: string
+      fileSize?: number
+      width?: number
+      height?: number
+      format?: string
+    }>
+  ) {
     try {
       const currentGalleryId = await ensureGalleryExists()
       
-      // Para cada arquivo, criar entrada no banco
       const newImages = await Promise.all(
         files.map(async (file, index) => {
           const response = await fetch('/api/images', {
@@ -126,9 +145,9 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
             body: JSON.stringify({
               galleryId: currentGalleryId,
               url: file.url,
-              thumbUrl: file.url, // UploadThing não gera thumb automaticamente, usar a mesma URL
-              width: 1200, // Valores padrão - idealmente extrair do file
-              height: 800,
+              thumbUrl: file.url,
+              width: file.width || 1200,
+              height: file.height || 800,
               order: images.length + index,
               alt: file.name,
             }),
@@ -139,7 +158,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
         })
       )
 
-      // Adicionar novas imagens ao estado
       setImages([...images, ...newImages])
       toast.success(`${files.length} imagem(ns) enviada(s) com sucesso!`)
       router.refresh()
@@ -152,7 +170,9 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
   }
 
   /**
-   * Atualizar alt text e caption de uma imagem
+   * ✅ CORRIGIDO: Removemos a variável updatedImage que não estava sendo usada
+   * Fazer o parse do JSON mas não usar o resultado é desperdício de recursos
+   * Se você não precisa dos dados retornados, pode simplesmente verificar se a resposta foi ok
    */
   async function handleUpdateImage(imageId: string, alt: string, caption: string) {
     try {
@@ -164,9 +184,9 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
 
       if (!response.ok) throw new Error('Erro ao atualizar imagem')
 
-      const updatedImage = await response.json()
+      // ✅ Não precisamos do updatedImage porque já temos os dados
+      // que queremos atualizar (alt e caption) disponíveis aqui
 
-      // Atualizar no estado local
       setImages(images.map(img => 
         img.id === imageId ? { ...img, alt, caption } : img
       ))
@@ -180,14 +200,7 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
     }
   }
 
-  /**
-   * Deletar uma imagem
-   */
-  async function handleDeleteImage(imageId: string) {
-    if (!confirm('Tem certeza que deseja deletar esta imagem?')) {
-      return
-    }
-
+  async function confirmDeleteImage(imageId: string) {
     setIsDeletingId(imageId)
 
     try {
@@ -197,7 +210,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
 
       if (!response.ok) throw new Error('Erro ao deletar imagem')
 
-      // Remover do estado local
       setImages(images.filter(img => img.id !== imageId))
       toast.success('Imagem deletada com sucesso!')
       router.refresh()
@@ -206,12 +218,10 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
       toast.error('Erro ao deletar imagem')
     } finally {
       setIsDeletingId(null)
+      setImageToDelete(null)
     }
   }
 
-  /**
-   * Abrir dialog de edição
-   */
   function openEditDialog(image: GalleryImage) {
     setEditingImage(image)
     setIsEditDialogOpen(true)
@@ -219,7 +229,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
 
   return (
     <div className="space-y-6">
-      {/* Área de Upload */}
       <Card>
         <CardContent className="pt-6">
           <div className="border-2 border-dashed rounded-lg p-8 text-center">
@@ -236,8 +245,12 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
                 </p>
               </div>
 
-              {/* UploadThing Dropzone */}
-              <UploadDropzone
+              {/**
+               * ✅ CORRIGIDO: Agora passamos o generic OurFileRouter
+               * Isso informa ao TypeScript qual é a estrutura do seu file router
+               * e permite que ele verifique se o endpoint "projectImages" existe
+               */}
+              <UploadDropzone<UploadThingFileRouter, "projectImages">
                 endpoint="projectImages"
                 onClientUploadComplete={(files) => {
                   handleUploadComplete(files)
@@ -267,7 +280,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
         </CardContent>
       </Card>
 
-      {/* Grid de Imagens */}
       {images.length > 0 ? (
         <Card>
           <CardContent className="pt-6">
@@ -277,7 +289,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
                   key={image.id}
                   className="relative group aspect-square rounded-lg overflow-hidden border bg-muted"
                 >
-                  {/* Imagem */}
                   <Image
                     src={image.thumbUrl || image.url}
                     alt={image.alt || 'Imagem do projeto'}
@@ -285,7 +296,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
                     className="object-cover"
                   />
 
-                  {/* Overlay com ações */}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <Button
                       size="sm"
@@ -297,7 +307,7 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => handleDeleteImage(image.id)}
+                      onClick={() => setImageToDelete(image.id)}
                       disabled={isDeletingId === image.id}
                     >
                       {isDeletingId === image.id ? (
@@ -308,7 +318,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
                     </Button>
                   </div>
 
-                  {/* Indicador de ordem */}
                   <div className="absolute top-2 left-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
                     #{image.order + 1}
                   </div>
@@ -331,7 +340,26 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
         </Card>
       )}
 
-      {/* Dialog de Edição */}
+      <AlertDialog open={!!imageToDelete} onOpenChange={() => setImageToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. A imagem será permanentemente deletada do projeto.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => imageToDelete && confirmDeleteImage(imageToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Deletar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -354,7 +382,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
               }}
               className="space-y-4"
             >
-              {/* Preview da imagem */}
               <div className="relative aspect-video rounded-lg overflow-hidden">
                 <Image
                   src={editingImage.url}
@@ -364,7 +391,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
                 />
               </div>
 
-              {/* Alt Text */}
               <div className="space-y-2">
                 <Label htmlFor="alt">Texto Alternativo (Alt)</Label>
                 <Input
@@ -378,7 +404,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
                 </p>
               </div>
 
-              {/* Caption */}
               <div className="space-y-2">
                 <Label htmlFor="caption">Legenda</Label>
                 <Textarea

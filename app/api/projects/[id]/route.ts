@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { ProjectStatus } from '@prisma/client'
+import { ProjectStatus, Prisma } from '@prisma/client'
 import { slugify } from '@/lib/utils'
 
 const updateProjectSchema = z.object({
@@ -31,7 +31,7 @@ export async function PATCH(
     }
 
     // Preparar payload
-    const updateData: any = {
+    const updateData: Prisma.ProjectUpdateInput = {
       title: data.title,
       slug: resolvedSlug,
       summary: data.summary ?? undefined,
@@ -101,4 +101,3 @@ export async function DELETE(
     )
   }
 }
-

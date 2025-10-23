@@ -10,7 +10,20 @@
 
 import { createUploadthing, type FileRouter } from 'uploadthing/next'
 import { UploadThingError } from 'uploadthing/server'
-import sharp from 'sharp'
+// Importar sharp apenas sob demanda para evitar erros de build em ambientes
+// onde os binários não estão disponíveis no momento da compilação.
+let _sharp: typeof import('sharp') | null = null
+async function getSharp() {
+  if (_sharp) return _sharp
+  try {
+    const mod = await import('sharp')
+    _sharp = mod.default ?? (mod as unknown as typeof import('sharp'))
+    return _sharp
+  } catch (e) {
+    // Falha ao carregar sharp: retornamos null e tratamos abaixo
+    return null
+  }
+}
 
 const f = createUploadthing()
 
@@ -61,6 +74,17 @@ export const uploadThingFileRouter = {
         const response = await fetch(file.url)
         const buffer = Buffer.from(await response.arrayBuffer())
         
+        const sharp = await getSharp()
+        // Se sharp não estiver disponível, retornamos sem processamento adicional
+        if (!sharp) {
+          return {
+            uploadedBy: metadata.userId,
+            fileUrl: file.url,
+            fileName: file.name,
+            fileSize: file.size,
+          }
+        }
+
         // Obter dimensões da imagem
         const imageMetadata = await sharp(buffer).metadata()
         
@@ -124,7 +148,11 @@ export const uploadThingFileRouter = {
       try {
         const response = await fetch(file.url)
         const buffer = Buffer.from(await response.arrayBuffer())
-        
+        const sharp = await getSharp()
+        if (!sharp) {
+          return { url: file.url }
+        }
+
         await sharp(buffer)
           .resize(200, 200, {
             fit: 'cover',
@@ -197,7 +225,11 @@ export const uploadThingFileRouter = {
       try {
         const response = await fetch(file.url)
         const buffer = Buffer.from(await response.arrayBuffer())
-        
+        const sharp = await getSharp()
+        if (!sharp) {
+          return { url: file.url, uploadedBy: metadata.userId }
+        }
+
         const imageMetadata = await sharp(buffer).metadata()
         
         // Gerar thumbnail para cards (600x400) - não usado por enquanto

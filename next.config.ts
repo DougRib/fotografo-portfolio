@@ -1,6 +1,9 @@
 import type { NextConfig } from 'next'
+import path from 'path'
 
 const nextConfig: NextConfig = {
+  // Corrige detecção do root quando há múltiplos lockfiles no sistema
+  outputFileTracingRoot: path.join(__dirname),
   // Habilita o Turbopack em desenvolvimento para builds mais rápidos
   // (já está habilitado via script "dev": "next dev --turbopack")
   

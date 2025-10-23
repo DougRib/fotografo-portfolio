@@ -88,13 +88,13 @@ export function Footer() {
                 Sobre
               </Link>
               <Link 
-                href="/servicos"
+                href="/#servicos"
                 className="text-sm text-secondary-foreground hover:text-primary transition-colors duration-200"
               >
                 Serviços
               </Link>
               <Link 
-                href="/contato"
+                href="/#contato"
                 className="text-sm text-secondary-foreground hover:text-primary transition-colors duration-200"
               >
                 Contato

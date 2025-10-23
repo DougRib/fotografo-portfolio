@@ -104,7 +104,7 @@ export default async function HomePage() {
       />
 
       {/* SERVIÇOS SECTION */}
-      <section className="bg-background py-20">
+      <section id="servicos" className="bg-background py-20">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Serviços</h2>
@@ -215,7 +215,7 @@ export default async function HomePage() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {testimonials.map((testimonial) => (
               <Card key={testimonial.id}>
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 border-primary">
                   <div className="flex items-center gap-1 mb-4">
                     {[...Array(5)].map((_, i) => (
                       <svg
@@ -228,9 +228,9 @@ export default async function HomePage() {
                     ))}
                   </div>
                   <p className="text-muted-foreground mb-4">&ldquo;{testimonial.text}&rdquo;</p>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 ">
                     {testimonial.avatarUrl && (
-                      <div className="relative h-10 w-10 rounded-full overflow-hidden">
+                      <div className="relative h-10 w-10 rounded-full overflow-hidden ">
                         <Image
                           src={testimonial.avatarUrl}
                           alt={testimonial.author}

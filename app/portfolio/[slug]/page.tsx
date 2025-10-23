@@ -132,6 +132,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             alt={project.title}
             fill
             priority
+            sizes="100vw"
             className="object-cover"
           />
         )}

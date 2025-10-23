@@ -6,16 +6,19 @@
  * Este pattern garante que usamos sempre a mesma instância.
  */
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, type Prisma } from '@prisma/client'
 
 // Configuração de log para diferentes ambientes
 const prismaClientSingleton = () => {
-  return new PrismaClient({
-    log:
-      process.env.NODE_ENV === 'development'
-        ? ['query', 'error', 'warn']
-        : ['error'],
-  })
+  const logs: Prisma.LogLevel[] = []
+  if (process.env.NODE_ENV === 'development') {
+    if (process.env.PRISMA_LOG_QUERIES === 'true') logs.push('query')
+    logs.push('warn', 'error')
+  } else {
+    logs.push('error')
+  }
+
+  return new PrismaClient({ log: logs })
 }
 
 // Definir tipo do cliente

@@ -166,6 +166,7 @@ export default async function HomePage() {
                     src={project.coverUrl}
                     alt={project.title}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-300 group-hover:scale-110 "
                   />
                 )}
@@ -234,6 +235,7 @@ export default async function HomePage() {
                           src={testimonial.avatarUrl}
                           alt={testimonial.author}
                           fill
+                          sizes="40px"
                           className="object-cover"
                         />
                       </div>

@@ -119,7 +119,6 @@ export function HeroSlideshow({
               priority={index === 0}
               className="object-cover"
               sizes="100vw"
-              quality={90}
             />
           </div>
         ))}

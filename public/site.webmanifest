@@ -1,0 +1,17 @@
+{
+  "name": "Portfólio de Fotografia",
+  "short_name": "Portfólio",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f4b400",
+  "description": "Portfólio de fotografia profissional.",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

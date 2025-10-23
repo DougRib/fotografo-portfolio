@@ -23,11 +23,11 @@ export const metadata: Metadata = {
 export const revalidate = 1800
 
 interface PortfolioPageProps {
-  searchParams: Promise<{
+  searchParams: {
     category?: string
     tag?: string
     page?: string
-  }>
+  }
 }
 
 async function getPortfolioData(searchParams: {
@@ -109,7 +109,7 @@ async function getPortfolioData(searchParams: {
 }
 
 export default async function PortfolioPage({ searchParams }: PortfolioPageProps) {
-  const resolvedSearchParams = await searchParams
+  const resolvedSearchParams = searchParams
   const data = await getPortfolioData(resolvedSearchParams)
 
   return (
@@ -165,7 +165,7 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
               {/* Tags */}
               <div>
                 <h3 className="font-semibold mb-3">Tags</h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mb-2">
                   {data.tags.map((tag) => (
                     <Link key={tag.id} href={`/portfolio?tag=${tag.slug}`}>
                       <Button
@@ -184,7 +184,7 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
               {/* Limpar filtros */}
               {(resolvedSearchParams.category || resolvedSearchParams.tag) && (
                 <Link href="/portfolio">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-500">
                     Limpar filtros
                   </Button>
                 </Link>
@@ -209,14 +209,14 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
                       href={`/portfolio/${project.slug}`}
                       className="group"
                     >
-                      <Card className="overflow-hidden hover:shadow-xl glass transition-shadow">
-                        <div className="relative aspect-[4/3]">
+                      <Card className="group overflow-hidden hover:shadow-xl glass transition-shadow">
+                        <div className="relative aspect-[4/3] overflow-hidden">
                           {project.coverUrl && (
                             <Image
                               src={project.coverUrl}
                               alt={project.title}
                               fill
-                              className="object-cover transition-transform duration-300 group-hover:scale-110"
+                              className="object-cover transition-transform duration-300 group-hover:scale-110 will-change-transform"
                             />
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

@@ -28,12 +28,15 @@ import { Camera, Menu, X, Sun, Moon } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { cn } from '@/lib/utils'
 
+const HERO_ID = 'hero-slideshow'
+const CONTACT_ID = 'contato'
+
 // Links de navegação do site
 // Cada link tem um label (texto exibido) e um href (URL de destino)
 const navigationLinks = [
   {
     label: 'Home',
-    href: '/',
+    href: `/#${HERO_ID}`,
   },
   {
     label: 'Portfólio',
@@ -45,7 +48,7 @@ const navigationLinks = [
   },
   {
     label: 'Contato',
-    href: '/#contato', // Ancora para a seção de contato na home
+    href: `/#${CONTACT_ID}`,
   },
 ]
 
@@ -55,6 +58,8 @@ export function SiteNavbar() {
   
   // State para controlar se a navbar deve ter background (após scroll)
   const [hasScrolled, setHasScrolled] = useState(false)
+  const [hash, setHash] = useState<string>('')
+  const [visibleSection, setVisibleSection] = useState<string | null>(null)
   
   // Hook para obter o pathname atual (qual página estamos)
   const pathname = usePathname()
@@ -69,17 +74,41 @@ export function SiteNavbar() {
   // Isso cria um efeito elegante onde a navbar é transparente no topo
   // e ganha um background sólido quando o usuário faz scroll
   useEffect(() => {
-    const handleScroll = () => {
-      // Se scrollou mais de 50px, ativa o background
-      setHasScrolled(window.scrollY > 50)
-    }
-
-    // Adiciona listener de scroll
+    const handleScroll = () => setHasScrolled(window.scrollY > 50)
     window.addEventListener('scroll', handleScroll)
-    
-    // Cleanup: remove listener quando componente é desmontado
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  useEffect(() => {
+    const updateHash = () => setHash(window.location.hash || '')
+    updateHash()
+    window.addEventListener('hashchange', updateHash)
+    return () => window.removeEventListener('hashchange', updateHash)
+  }, [])
+
+  // OBSERVA hero e contato no HOME
+  useEffect(() => {
+    if (pathname !== '/') return
+    const targets = [HERO_ID, CONTACT_ID]
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => !!el)
+
+    if (!targets.length) return
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        // prioriza a entrada mais central/visível
+         const mostVisible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        setVisibleSection(mostVisible ? (mostVisible.target as HTMLElement).id : null)
+      },
+      { root: null, rootMargin: '-35% 0px -35% 0px', threshold: [0.05, 0.25, 0.5, 0.75] }
+    )
+
+    targets.forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [pathname])
 
   // Função para fechar o menu mobile quando um link é clicado
   // Isso melhora a UX pois o usuário vê a navegação acontecendo
@@ -92,6 +121,19 @@ export function SiteNavbar() {
     setTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
+  // helper para saber se o link está ativo
+ const computeIsActive = (href: string) => {
+    const isAnchor = href.includes('#')
+
+    if (isAnchor) {
+      const targetHash = `#${href.split('#')[1]}`
+      const targetId = targetHash.slice(1)
+      // Contato ativo se a seção contato está visível OU hash é #contato
+      return pathname === '/' && (hash === targetHash || visibleSection === targetId)
+    }
+    return pathname === href
+  }
+
   return (
     <nav
       className={cn(
@@ -99,7 +141,7 @@ export function SiteNavbar() {
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         // Adiciona background e sombra após scroll
         hasScrolled
-          ? 'bg-[linear-gradient(90deg,#2e2f22,#ca9f02)] dark:bg-[linear-gradient(90deg,#2e2f22,#ca9f02)] shadow-sm shadow-gray-800 transitio-all duration-300'
+          ? 'bg-[linear-gradient(90deg,#2e2f22,#ca9f02)] dark:bg-[linear-gradient(90deg,#2e2f22,#ca9f02)] shadow-sm shadow-gray-800 transition-all duration-300'
           : 'bg-transparent'
       )}
     >
@@ -120,9 +162,10 @@ export function SiteNavbar() {
               )} />
             </div>
             <span className={cn(
-              "transition-colors",
-              hasScrolled ? "text-white" : "text-white"
-            )}>
+                "transition-colors",
+                hasScrolled ? "text-white" : "text-white"
+              )}
+            >
               {photographerName}
             </span>
           </Link>
@@ -133,10 +176,7 @@ export function SiteNavbar() {
             {navigationLinks.map((link) => {
               // Verifica se este link é o da página atual
               // Para links com ancora (#), compara apenas a parte antes do #
-              const isActive = link.href.includes('#')
-                ? pathname === '/'
-                : pathname === link.href
-
+              const isActive = computeIsActive(link.href)
               return (
                 <Link
                   key={link.href}
@@ -244,9 +284,7 @@ export function SiteNavbar() {
         <div className="container mx-auto px-4 py-4 space-y-2">
           {/* Links de navegação mobile */}
           {navigationLinks.map((link) => {
-            const isActive = link.href.includes('#')
-              ? pathname === '/'
-              : pathname === link.href
+            const isActive = computeIsActive(link.href)
 
             return (
               <Link

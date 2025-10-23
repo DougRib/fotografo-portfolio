@@ -3,21 +3,21 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 
 const serviceSchema = z.object({
-  name: z.string().min(3),
-  description: z.string().min(10),
+  name: z.string().min(3).optional(),
+  description: z.string().min(10).optional(),
   priceFrom: z.number().nullable().optional(),
-  features: z.array(z.string()),
-  active: z.boolean().default(true),
+  features: z.array(z.string()).optional(),
+  active: z.boolean().optional(),
 })
 
+// PATCH - Atualizar serviço por ID
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const params = await context.params
     const body = await request.json()
-    const validatedData = serviceSchema.partial().parse(body)
+    const validatedData = serviceSchema.parse(body)
 
     const service = await prisma.service.update({
       where: { id: params.id },
@@ -42,14 +42,12 @@ export async function PATCH(
   }
 }
 
-// DELETE - Remover serviço
+// DELETE - Remover serviço por ID
 export async function DELETE(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  _request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const params = await context.params
-    
     await prisma.service.delete({
       where: { id: params.id },
     })
@@ -63,3 +61,4 @@ export async function DELETE(
     )
   }
 }
+

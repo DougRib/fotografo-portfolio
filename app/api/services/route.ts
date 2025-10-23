@@ -76,53 +76,5 @@ export async function POST(request: NextRequest) {
 // ============================================
 
 // PATCH - Atualizar serviço
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const body = await request.json()
-    const validatedData = serviceSchema.partial().parse(body)
-
-    const service = await prisma.service.update({
-      where: { id: params.id },
-      data: validatedData,
-    })
-
-    return NextResponse.json(service)
-  } catch (error) {
-    console.error('Erro ao atualizar serviço:', error)
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Dados inválidos', details: error.errors },
-        { status: 400 }
-      )
-    }
-
-    return NextResponse.json(
-      { error: 'Erro ao atualizar serviço' },
-      { status: 500 }
-    )
-  }
-}
-
-// DELETE - Remover serviço
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    await prisma.service.delete({
-      where: { id: params.id },
-    })
-
-    return NextResponse.json({ message: 'Serviço removido com sucesso' })
-  } catch (error) {
-    console.error('Erro ao deletar serviço:', error)
-    return NextResponse.json(
-      { error: 'Erro ao deletar serviço' },
-      { status: 500 }
-    )
-  }
-}
+// Nota: Handlers de PATCH/DELETE para /api/services/[id] foram
+// movidos para app/api/services/[id]/route.ts

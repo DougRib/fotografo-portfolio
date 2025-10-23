@@ -98,7 +98,7 @@ export function HeroSlideshow({
   }
 
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black">
+    <section id='hero-slideshow' className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black">
       {/* Container das imagens com animação de fade */}
       <div className="absolute inset-0">
         {images.map((image, index) => (

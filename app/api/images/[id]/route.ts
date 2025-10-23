@@ -2,26 +2,28 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 
+const updateImageSchema = z.object({
+  alt: z.string().nullable().optional(),
+  caption: z.string().nullable().optional(),
+  order: z.number().int().min(0).optional(),
+})
+
+// PATCH - Atualizar campos de uma imagem
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const params = await context.params
     const body = await request.json()
-    
-    const updateSchema = z.object({
-      alt: z.string().optional(),
-      caption: z.string().optional(),
-      order: z.number().optional(),
-    })
+    const validated = updateImageSchema.parse(body)
 
-    const validatedData = updateSchema.parse(body)
-
-    // Atualizar imagem
     const image = await prisma.image.update({
       where: { id: params.id },
-      data: validatedData,
+      data: {
+        alt: validated.alt ?? undefined,
+        caption: validated.caption ?? undefined,
+        order: validated.order ?? undefined,
+      },
     })
 
     return NextResponse.json(image)
@@ -44,18 +46,15 @@ export async function PATCH(
 
 // DELETE - Remover imagem
 export async function DELETE(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  _request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const params = await context.params
-    
-    // Deletar imagem
     await prisma.image.delete({
       where: { id: params.id },
     })
 
-    return NextResponse.json({ message: 'Imagem removida com sucesso' })
+    return NextResponse.json({ message: 'Imagem deletada com sucesso' })
   } catch (error) {
     console.error('Erro ao deletar imagem:', error)
     return NextResponse.json(
@@ -64,3 +63,4 @@ export async function DELETE(
     )
   }
 }
+

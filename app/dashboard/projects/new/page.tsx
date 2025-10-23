@@ -47,8 +47,8 @@ export default async function NewProjectPage() {
       {/* Header com navegação */}
       <div className="flex items-center gap-4">
         <Button asChild variant="ghost" size="icon">
-          <Link href="/dashboard/projects">
-            <ArrowLeft className="h-5 w-5" />
+          <Link href="/dashboard/projects" className='hover:bg-primary'>
+            <ArrowLeft className="h-5 w-5 " />
           </Link>
         </Button>
         <div>

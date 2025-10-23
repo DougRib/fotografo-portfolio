@@ -23,11 +23,11 @@ export const metadata: Metadata = {
 export const revalidate = 1800
 
 interface PortfolioPageProps {
-  searchParams: {
+  searchParams: Promise<{
     category?: string
     tag?: string
     page?: string
-  }
+  }>
 }
 
 async function getPortfolioData(searchParams: {
@@ -109,7 +109,7 @@ async function getPortfolioData(searchParams: {
 }
 
 export default async function PortfolioPage({ searchParams }: PortfolioPageProps) {
-  const resolvedSearchParams = searchParams
+  const resolvedSearchParams = await searchParams
   const data = await getPortfolioData(resolvedSearchParams)
 
   return (

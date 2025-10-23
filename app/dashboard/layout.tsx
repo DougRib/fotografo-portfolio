@@ -8,11 +8,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { DashboardNav } from '@/components/dashboard-nav'
-
-
-import { Camera, Menu } from 'lucide-react'
-import { ThemeToggle } from '@/components/theme-toggle'
-import { UserNav } from '@/components/user-nav'
+import { Camera } from 'lucide-react'
 
 export default function DashboardLayout({
   children,
@@ -34,7 +30,7 @@ export default function DashboardLayout({
 
         <div className="border-t p-4">
           <Link href="/" target="_blank">
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start hover:bg-primary transition-colors duration-200">
               <svg
                 className="mr-2 h-4 w-4"
                 fill="none"
@@ -54,26 +50,8 @@ export default function DashboardLayout({
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content (sem header do dashboard) */}
       <div className="flex flex-1 flex-col">
-        {/* Header */}
-        <header className="sticky top-0 z-40 border-b bg-background">
-          <div className="flex h-16 items-center gap-4 px-6">
-            {/* Mobile menu button */}
-            <Button variant="ghost" size="icon" className="lg:hidden">
-              <Menu className="h-6 w-6" />
-            </Button>
-
-            {/* Spacer */}
-            <div className="flex-1" />
-
-            {/* Header actions */}
-            <ThemeToggle />
-            <UserNav />
-          </div>
-        </header>
-
-        {/* Page content */}
         <main className="flex-1 overflow-auto p-6">
           {children}
         </main>

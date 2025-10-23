@@ -26,13 +26,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { MoreHorizontal, Edit, ExternalLink, Image as ImageIcon, Trash2, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -147,22 +147,22 @@ export function ProjectActions({ project }: ProjectActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Dialog de confirmação de deleção */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Tem certeza?</DialogTitle>
-            <DialogDescription>
-              Esta ação não pode ser desfeita. O projeto &ldquo;{project.title}&rdquo; e 
-              todas as suas imagens serão permanentemente removidos.
-            </DialogDescription>
-          </DialogHeader>
+      {/* Modal de confirmação de deleção */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent className="max-w-md bg-[linear-gradient(180deg,#f8fafc,#ffffff)] dark:bg-[linear-gradient(180deg,#0b0b0c,#111214)] border border-primary/30 shadow-2xl sm:rounded-xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir projeto?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O projeto “{project.title}” e todas as suas imagens serão removidos permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
-          <DialogFooter>
+          <AlertDialogFooter>
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
               disabled={isDeleting}
+              className="min-w-[120px]"
             >
               Cancelar
             </Button>
@@ -170,6 +170,7 @@ export function ProjectActions({ project }: ProjectActionsProps) {
               variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
+              className="min-w-[160px]"
             >
               {isDeleting ? (
                 <>
@@ -180,9 +181,9 @@ export function ProjectActions({ project }: ProjectActionsProps) {
                 'Deletar Projeto'
               )}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

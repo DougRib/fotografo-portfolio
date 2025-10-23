@@ -18,17 +18,16 @@ import { ArrowLeft, Calendar, Tag } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
 interface ProjectPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 // Gerar metadados dinâmicos para SEO
-export async function generateMetadata({
-  params,
-}: ProjectPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
+  const { slug } = await params
   const project = await prisma.project.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     select: {
       title: true,
       seoTitle: true,
@@ -106,7 +105,8 @@ async function getProject(slug: string) {
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
-  const project = await getProject(params.slug)
+  const { slug } = await params
+  const project = await getProject(slug)
 
   if (!project) {
     notFound()

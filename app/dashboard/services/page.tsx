@@ -41,6 +41,16 @@ import {
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Edit2, Trash2, Loader2, DollarSign, CheckCircle2 } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
 import { formatCurrency } from '@/lib/utils'
 
@@ -72,6 +82,7 @@ export default function ServicesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingService, setEditingService] = useState<Service | null>(null)
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   const {
     register,
@@ -174,8 +185,6 @@ export default function ServicesPage() {
 
   // Deletar serviço
   async function handleDelete(id: string) {
-    if (!confirm('Tem certeza que deseja deletar este serviço?')) return
-
     setIsDeletingId(id)
 
     try {
@@ -193,6 +202,7 @@ export default function ServicesPage() {
       toast.error('Erro ao deletar serviço')
     } finally {
       setIsDeletingId(null)
+      setPendingDeleteId(null)
     }
   }
 
@@ -281,7 +291,7 @@ export default function ServicesPage() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => handleDelete(service.id)}
+                    onClick={() => setPendingDeleteId(service.id)}
                     disabled={isDeletingId === service.id}
                   >
                     {isDeletingId === service.id ? (
@@ -299,7 +309,7 @@ export default function ServicesPage() {
 
       {/* Dialog de Criar/Editar */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-[linear-gradient(180deg,#f8fafc,#ffffff)] dark:bg-[linear-gradient(180deg,#0b0b0c,#111214)] border border-primary/30 shadow-2xl sm:rounded-xl">
           <DialogHeader>
             <DialogTitle>
               {editingService ? 'Editar Serviço' : 'Novo Serviço'}
@@ -324,7 +334,7 @@ export default function ServicesPage() {
               {errors.name && (
                 <p className="text-sm text-red-600">{errors.name.message}</p>
               )}
-            </div>
+      </div>
 
             {/* Descrição */}
             <div className="space-y-2">
@@ -399,10 +409,11 @@ export default function ServicesPage() {
                 variant="outline"
                 onClick={() => setIsDialogOpen(false)}
                 disabled={isSubmitting}
+                className="min-w-[120px] hover:bg-red-500 transition-colors duration-200 hover:text-white"
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="min-w-[160px] ">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -416,6 +427,27 @@ export default function ServicesPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Modal de confirmação de exclusão */}
+      <AlertDialog open={!!pendingDeleteId} onOpenChange={() => setPendingDeleteId(null)}>
+        <AlertDialogContent className="max-w-md bg-[linear-gradient(180deg,#f8fafc,#ffffff)] dark:bg-[linear-gradient(180deg,#0b0b0c,#111214)] border border-primary/30 shadow-2xl sm:rounded-xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir serviço?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O serviço será removido permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="min-w-[120px]">Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 min-w-[140px]"
+              onClick={() => pendingDeleteId && handleDelete(pendingDeleteId)}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

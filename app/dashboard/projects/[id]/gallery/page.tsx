@@ -20,9 +20,9 @@ import { prisma } from '@/lib/prisma'
 import { ArrowLeft } from 'lucide-react'
 
 interface GalleryPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 /**
@@ -46,7 +46,8 @@ async function getProjectGallery(projectId: string) {
 }
 
 export default async function GalleryPage({ params }: GalleryPageProps) {
-  const project = await getProjectGallery(params.id)
+  const { id } = await params
+  const project = await getProjectGallery(id)
 
   // Se projeto não existe, retorna 404
   if (!project) {
@@ -58,7 +59,7 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
       {/* Header com navegação */}
       <div className="flex items-center gap-4">
         <Button asChild variant="ghost" size="icon">
-          <Link href={`/dashboard/projects/${project.id}`}>
+          <Link href={`/dashboard/projects/${project.id}`} className='hover:bg-primary transition-colors duration-200'>
             <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>

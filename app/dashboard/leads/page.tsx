@@ -123,7 +123,7 @@ export default async function LeadsPage() {
                           <div className="space-y-1 text-sm">
                             {lead.email && (
                               <div className="flex items-center gap-2 text-muted-foreground">
-                                <Mail className="h-4 w-4" />
+                                <Mail className="h-4 w-4 text-primary" />
                                 <a href={`mailto:${lead.email}`} className="hover:text-primary">
                                   {lead.email}
                                 </a>
@@ -131,14 +131,14 @@ export default async function LeadsPage() {
                             )}
                             {lead.phone && (
                               <div className="flex items-center gap-2 text-muted-foreground">
-                                <Phone className="h-4 w-4" />
+                                <Phone className="h-4 w-4 text-primary" />
                                 <a href={`tel:${lead.phone}`} className="hover:text-primary">
                                   {formatPhone(lead.phone)}
                                 </a>
                               </div>
                             )}
                             <div className="flex items-center gap-2 text-muted-foreground">
-                              <Calendar className="h-4 w-4" />
+                              <Calendar className="h-4 w-4 text-primary" />
                               {formatDate(lead.createdAt, {
                                 day: '2-digit',
                                 month: 'short',
@@ -153,12 +153,12 @@ export default async function LeadsPage() {
                         {/* Badges de tipo e origem */}
                         <div className="flex flex-wrap gap-2">
                           {lead.serviceType && (
-                            <Badge variant="outline">
+                            <Badge variant="outline" className='border-primary'>
                               {lead.serviceType}
                             </Badge>
                           )}
                           {lead.source && (
-                            <Badge variant="secondary">
+                            <Badge variant="secondary" className='bg-slate-300'>
                               {lead.source}
                             </Badge>
                           )}
@@ -169,7 +169,7 @@ export default async function LeadsPage() {
                       <div className="space-y-2 text-sm">
                         {lead.eventDate && (
                           <div className="flex items-start gap-2">
-                            <Calendar className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                            <Calendar className="h-4 w-4 mt-0.5 text-primary" />
                             <div>
                               <strong>Data do Evento:</strong><br />
                               {formatDate(lead.eventDate, {
@@ -183,7 +183,7 @@ export default async function LeadsPage() {
 
                         {lead.eventLocation && (
                           <div className="flex items-start gap-2">
-                            <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                            <MapPin className="h-4 w-4 mt-0.5 text-primary" />
                             <div>
                               <strong>Local:</strong><br />
                               {lead.eventLocation}
@@ -193,7 +193,7 @@ export default async function LeadsPage() {
 
                         {lead.estimatedBudget && (
                           <div className="flex items-start gap-2">
-                            <DollarSign className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                            <DollarSign className="h-4 w-4 mt-0.5 text-primary" />
                             <div>
                               <strong>Orçamento:</strong><br />
                               {lead.estimatedBudget}
@@ -259,6 +259,7 @@ export default async function LeadsPage() {
                             href={`https://wa.me/${lead.phone.replace(/\D/g, '')}`}
                             target="_blank"
                             rel="noopener noreferrer"
+                            className='hover:bg-green-400 transition-colors duration-200'
                           >
                             <Phone className="mr-2 h-4 w-4" />
                             WhatsApp

@@ -16,9 +16,9 @@ import { prisma } from '@/lib/prisma'
 import { ArrowLeft } from 'lucide-react'
 
 interface EditProjectPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 /**
@@ -51,7 +51,8 @@ async function getProjectData(id: string) {
 }
 
 export default async function EditProjectPage({ params }: EditProjectPageProps) {
-  const { project, categories, tags } = await getProjectData(params.id)
+  const { id } = await params
+  const { project, categories, tags } = await getProjectData(id)
 
   // Se projeto não existe, retorna 404
   if (!project) {
@@ -63,8 +64,8 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
       {/* Header com navegação */}
       <div className="flex items-center gap-4">
         <Button asChild variant="ghost" size="icon">
-          <Link href="/dashboard/projects">
-            <ArrowLeft className="h-5 w-5" />
+          <Link href="/dashboard/projects" className='hover:bg-primary transition-colors duration-300'>
+            <ArrowLeft className="h-5 w-5 " />
           </Link>
         </Button>
         <div className="flex-1">

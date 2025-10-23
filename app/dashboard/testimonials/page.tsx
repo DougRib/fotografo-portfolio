@@ -38,6 +38,16 @@ import {
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Edit2, Trash2, Loader2, Quote, User } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
 
 const testimonialSchema = z.object({
@@ -66,6 +76,7 @@ export default function TestimonialsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null)
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   const {
     register,
@@ -149,8 +160,6 @@ export default function TestimonialsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Tem certeza que deseja deletar este depoimento?')) return
-
     setIsDeletingId(id)
 
     try {
@@ -168,6 +177,7 @@ export default function TestimonialsPage() {
       toast.error('Erro ao deletar depoimento')
     } finally {
       setIsDeletingId(null)
+      setPendingDeleteId(null)
     }
   }
 
@@ -262,7 +272,7 @@ export default function TestimonialsPage() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => handleDelete(testimonial.id)}
+                    onClick={() => setPendingDeleteId(testimonial.id)}
                     disabled={isDeletingId === testimonial.id}
                   >
                     {isDeletingId === testimonial.id ? (
@@ -280,7 +290,7 @@ export default function TestimonialsPage() {
 
       {/* Dialog de Criar/Editar */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl bg-[linear-gradient(180deg,#f8fafc,#ffffff)] dark:bg-[linear-gradient(180deg,#0b0b0c,#111214)] border border-primary/30 shadow-2xl sm:rounded-xl">
           <DialogHeader>
             <DialogTitle>
               {editingTestimonial ? 'Editar Depoimento' : 'Novo Depoimento'}
@@ -305,7 +315,7 @@ export default function TestimonialsPage() {
               {errors.author && (
                 <p className="text-sm text-red-600">{errors.author.message}</p>
               )}
-            </div>
+      </div>
 
             {/* Cargo/Papel */}
             <div className="space-y-2">
@@ -370,10 +380,11 @@ export default function TestimonialsPage() {
                 variant="outline"
                 onClick={() => setIsDialogOpen(false)}
                 disabled={isSubmitting}
+                className="min-w-[120px] hover:bg-red-500 transition-colors duration-200 hover:text-white"
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="min-w-[180px]">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -387,6 +398,27 @@ export default function TestimonialsPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Modal de confirmação de exclusão */}
+      <AlertDialog open={!!pendingDeleteId} onOpenChange={() => setPendingDeleteId(null)}>
+        <AlertDialogContent className="max-w-md bg-[linear-gradient(180deg,#f8fafc,#ffffff)] dark:bg-[linear-gradient(180deg,#0b0b0c,#111214)] border border-primary/30 shadow-2xl sm:rounded-xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir depoimento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O depoimento será removido permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="min-w-[120px]">Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 min-w-[140px]"
+              onClick={() => pendingDeleteId && handleDelete(pendingDeleteId)}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

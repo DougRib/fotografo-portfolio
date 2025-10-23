@@ -149,7 +149,7 @@ export default async function DashboardPage() {
               </p>
             </div>
             <Button asChild variant="outline" size="sm">
-              <Link href="/dashboard/leads">
+              <Link href="/dashboard/leads" className='hover:bg-primary transition-colors duration-200'>
                 Ver Todos <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -214,7 +214,7 @@ export default async function DashboardPage() {
               </p>
             </div>
             <Button asChild variant="outline" size="sm">
-              <Link href="/dashboard/projects">
+              <Link href="/dashboard/projects" className='hover:bg-primary transition-colors duration-200'>
                 Ver Todos <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -279,44 +279,6 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Ações Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Button asChild className="h-auto py-4" variant="outline">
-              <Link href="/dashboard/projects/new" className="flex flex-col gap-2">
-                <FolderOpen className="h-6 w-6" />
-                <span>Novo Projeto</span>
-              </Link>
-            </Button>
-            
-            <Button asChild className="h-auto py-4" variant="outline">
-              <Link href="/dashboard/leads" className="flex flex-col gap-2">
-                <Users className="h-6 w-6" />
-                <span>Ver Leads</span>
-              </Link>
-            </Button>
-            
-            <Button asChild className="h-auto py-4" variant="outline">
-              <Link href="/portfolio" target="_blank" className="flex flex-col gap-2">
-                <Eye className="h-6 w-6" />
-                <span>Ver Site</span>
-              </Link>
-            </Button>
-            
-            <Button asChild className="h-auto py-4" variant="outline">
-              <Link href="/dashboard/settings" className="flex flex-col gap-2">
-                <MessageSquare className="h-6 w-6" />
-                <span>Configurações</span>
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

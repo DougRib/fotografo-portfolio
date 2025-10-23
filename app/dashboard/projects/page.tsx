@@ -38,17 +38,17 @@ export const revalidate = 300
 
 // Interface para os parâmetros de busca da URL
 interface ProjectsPageProps {
-  searchParams: {
+  searchParams: Promise<{
     status?: ProjectStatus
     search?: string
-  }
+  }>
 }
 
 /**
  * Função para buscar projetos do banco de dados
  * Aceita filtros opcionais de status e busca por texto
  */
-async function getProjects(searchParams: ProjectsPageProps['searchParams']) {
+async function getProjects(searchParams: Awaited<ProjectsPageProps['searchParams']>) {
   const where: Prisma.ProjectWhereInput = {}
 
   // Filtrar por status se fornecido
@@ -104,7 +104,8 @@ async function getProjects(searchParams: ProjectsPageProps['searchParams']) {
  * Server Component que renderiza no servidor para melhor SEO e performance
  */
 export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
-  const { projects, statusCounts } = await getProjects(searchParams)
+  const resolvedSearchParams = await searchParams
+  const { projects, statusCounts } = await getProjects(resolvedSearchParams)
 
   // Converter counts em objeto para fácil acesso
   const counts = statusCounts.reduce((acc, curr) => {
@@ -133,7 +134,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
       {/* Cards com estatísticas rápidas */}
       <div className="grid gap-4 md:grid-cols-4">
         <Link href="/dashboard/projects">
-          <Card className={`cursor-pointer transition-colors ${!searchParams.status ? 'border-primary' : 'hover:border-muted-foreground/50'}`}>
+          <Card className={`cursor-pointer transition-colors ${!resolvedSearchParams.status ? 'border-primary' : 'hover:border-muted-foreground/50'}`}>
             <CardHeader className="pb-2">
               <CardDescription>Total</CardDescription>
               <CardTitle className="text-3xl">
@@ -144,7 +145,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
         </Link>
 
         <Link href="/dashboard/projects?status=PUBLISHED">
-          <Card className={`cursor-pointer transition-colors ${searchParams.status === 'PUBLISHED' ? 'border-primary' : 'hover:border-muted-foreground/50'}`}>
+          <Card className={`cursor-pointer transition-colors ${resolvedSearchParams.status === 'PUBLISHED' ? 'border-primary' : 'hover:border-muted-foreground/50'}`}>
             <CardHeader className="pb-2">
               <CardDescription>Publicados</CardDescription>
               <CardTitle className="text-3xl text-green-600">
@@ -155,7 +156,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
         </Link>
 
         <Link href="/dashboard/projects?status=DRAFT">
-          <Card className={`cursor-pointer transition-colors ${searchParams.status === 'DRAFT' ? 'border-primary' : 'hover:border-muted-foreground/50'}`}>
+          <Card className={`cursor-pointer transition-colors ${resolvedSearchParams.status === 'DRAFT' ? 'border-primary' : 'hover:border-muted-foreground/50'}`}>
             <CardHeader className="pb-2">
               <CardDescription>Rascunhos</CardDescription>
               <CardTitle className="text-3xl text-yellow-600">
@@ -166,7 +167,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
         </Link>
 
         <Link href="/dashboard/projects?status=ARCHIVED">
-          <Card className={`cursor-pointer transition-colors ${searchParams.status === 'ARCHIVED' ? 'border-primary' : 'hover:border-muted-foreground/50'}`}>
+          <Card className={`cursor-pointer transition-colors ${resolvedSearchParams.status === 'ARCHIVED' ? 'border-primary' : 'hover:border-muted-foreground/50'}`}>
             <CardHeader className="pb-2">
               <CardDescription>Arquivados</CardDescription>
               <CardTitle className="text-3xl text-gray-600">
@@ -194,7 +195,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
               <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">Nenhum projeto encontrado</h3>
               <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                {searchParams.status || searchParams.search
+                {resolvedSearchParams.status || resolvedSearchParams.search
                   ? 'Tente ajustar seus filtros ou criar um novo projeto.'
                   : 'Comece criando seu primeiro projeto para mostrar seu trabalho.'}
               </p>
@@ -208,9 +209,9 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
           ) : (
             // Tabela com projetos
             <Table>
-              <TableHeader>
+              <TableHeader >
                 <TableRow>
-                  <TableHead className="w-[60px]">Cover</TableHead>
+                  <TableHead className="w-[60px] ">Cover</TableHead>
                   <TableHead>Título</TableHead>
                   <TableHead>Categoria</TableHead>
                   <TableHead>Status</TableHead>

@@ -115,9 +115,7 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
   }
 
   /**
-   * ✅ CORRIGIDO: Agora tipamos explicitamente o parâmetro files
    * O tipo ClientUploadedFileData vem do @uploadthing/react
-   * Isso resolve o aviso sobre implicit any
    */
   async function handleUploadComplete(
     files: Array<{ 
@@ -170,7 +168,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
   }
 
   /**
-   * ✅ CORRIGIDO: Removemos a variável updatedImage que não estava sendo usada
    * Fazer o parse do JSON mas não usar o resultado é desperdício de recursos
    * Se você não precisa dos dados retornados, pode simplesmente verificar se a resposta foi ok
    */
@@ -184,7 +181,6 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
 
       if (!response.ok) throw new Error('Erro ao atualizar imagem')
 
-      // ✅ Não precisamos do updatedImage porque já temos os dados
       // que queremos atualizar (alt e caption) disponíveis aqui
 
       setImages(images.map(img => 
@@ -231,7 +227,7 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
     <div className="space-y-6">
       <Card>
         <CardContent className="pt-6">
-          <div className="border-2 border-dashed rounded-lg p-8 text-center">
+          <div className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-muted transition-colors duration-200">
             <div className="flex flex-col items-center gap-4">
               <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
                 <Upload className="h-8 w-8 text-primary" />
@@ -264,7 +260,7 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
                   setIsUploading(true)
                 }}
                 appearance={{
-                  button: 'bg-primary hover:bg-primary/90',
+                  button: 'bg-primary p-3 hover:bg-primary/90',
                   container: 'border-0',
                 }}
               />
@@ -313,7 +309,7 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
                       {isDeletingId === image.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <X className="h-4 w-4" />
+                        <X className="h-4 w-4 " />
                       )}
                     </Button>
                   </div>
@@ -341,7 +337,7 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
       )}
 
       <AlertDialog open={!!imageToDelete} onOpenChange={() => setImageToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-md bg-[linear-gradient(180deg,#f8fafc,#ffffff)] dark:bg-[linear-gradient(180deg,#0b0b0c,#111214)] border border-primary/30 shadow-2xl sm:rounded-xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -349,10 +345,10 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="min-w-[120px]">Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => imageToDelete && confirmDeleteImage(imageToDelete)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/70 min-w-[140px]"
             >
               Deletar
             </AlertDialogAction>
@@ -361,7 +357,7 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
       </AlertDialog>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl bg-[linear-gradient(180deg,#f8fafc,#ffffff)] dark:bg-[linear-gradient(180deg,#0b0b0c,#111214)] border border-primary/30 shadow-2xl sm:rounded-xl">
           <DialogHeader>
             <DialogTitle>Editar Imagem</DialogTitle>
             <DialogDescription>
@@ -420,10 +416,11 @@ export function GalleryManager({ projectId, galleryId, images: initialImages }: 
                   type="button"
                   variant="outline"
                   onClick={() => setIsEditDialogOpen(false)}
+                  className="min-w-[120px] hover:bg-red-600 hover:text-white transition-colors duration-200"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit">
+                <Button type="submit" className="min-w-[180px]">
                   Salvar Alterações
                 </Button>
               </DialogFooter>

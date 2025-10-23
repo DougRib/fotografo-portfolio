@@ -48,11 +48,6 @@ const navItems = [
     href: '/dashboard/services',
     icon: Briefcase,
   },
-  {
-    title: 'Configurações',
-    href: '/dashboard/settings',
-    icon: Settings,
-  },
 ]
 
 export function DashboardNav() {
@@ -62,7 +57,9 @@ export function DashboardNav() {
     <nav className="space-y-1 px-3">
       {navItems.map((item) => {
         const Icon = item.icon
-        const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
+        const isActive = item.href === '/dashboard'
+          ? pathname === '/dashboard'
+          : pathname === item.href || pathname.startsWith(`${item.href}/`)
 
         return (
           <Link

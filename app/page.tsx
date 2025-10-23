@@ -215,7 +215,7 @@ export default async function HomePage() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {testimonials.map((testimonial) => (
               <Card key={testimonial.id}>
-                <CardContent className="pt-6 border-primary">
+                <CardContent className="pt-6 ">
                   <div className="flex items-center gap-1 mb-4">
                     {[...Array(5)].map((_, i) => (
                       <svg

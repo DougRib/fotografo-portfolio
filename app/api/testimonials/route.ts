@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import { requireAdmin } from '@/lib/authz'
 
 const testimonialSchema = z.object({
   author: z.string().min(2),
@@ -37,6 +38,10 @@ export async function GET() {
 // POST - Criar depoimento
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdmin()
+    if (!auth.allowed) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: auth.status })
+    }
     const body = await request.json()
     const validatedData = testimonialSchema.parse(body)
 

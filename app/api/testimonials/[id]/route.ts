@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import { requireAdmin } from '@/lib/authz'
 
 const testimonialSchema = z.object({
   author: z.string().min(2).optional(),
@@ -15,6 +16,10 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    const auth = await requireAdmin()
+    if (!auth.allowed) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: auth.status })
+    }
     const body = await request.json()
     const data = testimonialSchema.parse(body)
 
@@ -44,6 +49,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const auth = await requireAdmin()
+    if (!auth.allowed) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: auth.status })
+    }
     await prisma.testimonial.delete({ where: { id: params.id } })
     return NextResponse.json({ message: 'Depoimento removido com sucesso' })
   } catch (error) {
@@ -54,4 +63,3 @@ export async function DELETE(
     )
   }
 }
-

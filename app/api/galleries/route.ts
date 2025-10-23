@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import { requireAdmin } from '@/lib/authz'
 
 // Schema de validação
 const createGallerySchema = z.object({
@@ -19,7 +20,10 @@ const createGallerySchema = z.object({
 // POST - Criar galeria
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Verificar autenticação
+    const auth = await requireAdmin()
+    if (!auth.allowed) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: auth.status })
+    }
     
     const body = await request.json()
     const validatedData = createGallerySchema.parse(body)

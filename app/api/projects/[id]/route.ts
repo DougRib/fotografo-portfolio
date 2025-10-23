@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { ProjectStatus, Prisma } from '@prisma/client'
 import { slugify } from '@/lib/utils'
+import { requireAdmin } from '@/lib/authz'
 
 const updateProjectSchema = z.object({
   title: z.string().min(3).max(200).optional(),
@@ -21,6 +22,10 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    const auth = await requireAdmin()
+    if (!auth.allowed) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: auth.status })
+    }
     const body = await request.json()
     const data = updateProjectSchema.parse(body)
 
@@ -91,6 +96,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const auth = await requireAdmin()
+    if (!auth.allowed) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: auth.status })
+    }
     await prisma.project.delete({ where: { id: params.id } })
     return NextResponse.json({ message: 'Projeto removido com sucesso' })
   } catch (error) {

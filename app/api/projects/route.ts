@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { ProjectStatus } from '@prisma/client'
 import { slugify } from '@/lib/utils'
+import { requireAdmin } from '@/lib/authz'
 
 // Schema de validação para criação de projeto
 const createProjectSchema = z.object({
@@ -123,11 +124,10 @@ export async function GET(request: NextRequest) {
 // POST - Criar novo projeto
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Adicionar verificação de autenticação
-    // const session = await getServerSession()
-    // if (!session) {
-    //   return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
-    // }
+    const auth = await requireAdmin()
+    if (!auth.allowed) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: auth.status })
+    }
 
     const body = await request.json()
     const validatedData = createProjectSchema.parse(body)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import { requireAdmin } from '@/lib/authz'
 
 const updateImageSchema = z.object({
   alt: z.string().nullable().optional(),
@@ -14,6 +15,10 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    const auth = await requireAdmin()
+    if (!auth.allowed) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: auth.status })
+    }
     const body = await request.json()
     const validated = updateImageSchema.parse(body)
 
@@ -50,6 +55,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const auth = await requireAdmin()
+    if (!auth.allowed) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: auth.status })
+    }
     await prisma.image.delete({
       where: { id: params.id },
     })
@@ -63,4 +72,3 @@ export async function DELETE(
     )
   }
 }
-

@@ -103,47 +103,6 @@ export default async function HomePage() {
         autoPlayInterval={5000}
       />
 
-      {/* SERVIÇOS SECTION */}
-      <section id="servicos" className="bg-background py-20">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Serviços</h2>
-            <p className="text-lg text-muted-foreground">
-              Pacotes personalizados para cada tipo de projeto
-            </p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {services.map((service) => (
-              <Card 
-                key={service.id} 
-                className="hover:shadow-lg transition-shadow bg-[linear-gradient(180deg,#dedede,#ffffff)] text-muted-foreground dark:text-gray-800 border-primary"
-              >
-                <CardHeader>
-                  <CardTitle>{service.name}</CardTitle>
-                  {service.priceFrom && (
-                    <CardDescription className="text-2xl font-bold text-primary">
-                      A partir de R$ {(service.priceFrom / 100).toLocaleString('pt-BR')}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">{service.description}</p>
-                  <ul className="space-y-2">
-                    {service.features.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* PORTFÓLIO DESTACADO */}
       <section className="bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)] py-20">
         <div className="container mx-auto px-4">
@@ -202,8 +161,49 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* SERVIÇOS SECTION */}
+      <section id="servicos" className="bg-background py-20">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-3xl text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Serviços</h2>
+            <p className="text-lg text-muted-foreground">
+              Pacotes personalizados para cada tipo de projeto
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {services.map((service) => (
+              <Card 
+                key={service.id} 
+                className="hover:shadow-lg transition-shadow bg-[linear-gradient(180deg,#dedede,#ffffff)] text-muted-foreground dark:text-gray-800 border-primary"
+              >
+                <CardHeader>
+                  <CardTitle>{service.name}</CardTitle>
+                  {service.priceFrom && (
+                    <CardDescription className="text-2xl font-bold text-primary">
+                      A partir de R$ {(service.priceFrom / 100).toLocaleString('pt-BR')}
+                    </CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">{service.description}</p>
+                  <ul className="space-y-2">
+                    {service.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* DEPOIMENTOS */}
-      <section className="bg-background py-20">
+      <section className="bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)] py-20">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Depoimentos</h2>
@@ -255,7 +255,7 @@ export default async function HomePage() {
       </section>
 
       {/* DIFERENCIAIS */}
-      <section className="bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)] py-20">
+      <section className="bg-background py-20">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-5xl">
             <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
@@ -304,7 +304,7 @@ export default async function HomePage() {
       </section>
 
       {/* FORMULÁRIO DE CONTATO */}
-      <section id="contato" className="bg-background py-20">
+      <section id="contato" className="bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)] py-20">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl">
             <div className="text-center mb-12">

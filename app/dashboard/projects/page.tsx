@@ -208,7 +208,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
             </div>
           ) : (
             // Tabela com projetos
-            <Table>
+            <Table >
               <TableHeader >
                 <TableRow>
                   <TableHead className="w-[60px] ">Cover</TableHead>
@@ -245,7 +245,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                     <TableCell className="font-medium">
                       <Link
                         href={`/dashboard/projects/${project.id}`}
-                        className="hover:underline"
+                        className="hover:underline hover:text-primary transition-colors duration-300"
                       >
                         {project.title}
                       </Link>

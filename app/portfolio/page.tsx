@@ -126,10 +126,10 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
       </section>
 
       <div className="container mx-auto px-4 py-12">
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
           {/* Sidebar - Filtros */}
-          <aside className="lg:w-64 shrink-0">
-            <div className="sticky top-4 space-y-4">
+          <aside className="lg:w-64 shrink-0 md:sticky md:top-24 self-start">
+            <div className="space-y-4 max-h-[calc(100vh-140px)] overflow-auto pr-1">
               {/* Categorias */}
               <div>
                 <h3 className="font-semibold mb-3">Categorias</h3>

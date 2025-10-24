@@ -183,13 +183,13 @@ export function SiteNavbar() {
                   href={link.href}
                   className={cn(
                     // Classes base do link
-                    'px-4 py-2 rounded-md text-sm font-medium transition-colors',
+                    'px-4 py-2 rounded-md text-sm font-medium transition-colors duration-300',
                     // Classes para link ativo (página atual)
                     isActive
                       ? 'bg-primary text-primary-foreground'
                       : hasScrolled
                       ? 'text-white hover:bg-primary hover:text-accent-foreground'
-                      : 'text-white hover:bg-primary'
+                      : 'text-white hover:bg-primary hover:text-slate-700'
                   )}
                 >
                   {link.label}

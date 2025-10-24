@@ -14,7 +14,8 @@ import {
   MessageSquare,
   Briefcase,
   Users,
-  Settings,
+  Tag,
+  Tags,
 } from 'lucide-react'
 
 const navItems = [
@@ -47,6 +48,16 @@ const navItems = [
     title: 'Serviços',
     href: '/dashboard/services',
     icon: Briefcase,
+  },
+  {
+    title: 'Categorias',
+    href: '/dashboard/categories',
+    icon: Tags,
+  },
+  {
+    title: 'Tags',
+    href: '/dashboard/tags',
+    icon: Tag,
   },
 ]
 

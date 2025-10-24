@@ -10,6 +10,7 @@ import { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { OpenGalleryButton } from '@/components/open-gallery-button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProjectGallery } from '@/components/project-gallery'
 import { prisma } from '@/lib/prisma'
@@ -141,7 +142,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <div className="absolute inset-0 flex items-end">
           <div className="container mx-auto px-4 pb-12">
             <Link href="/portfolio">
-              <Button variant="ghost" className="mb-4 text-white hover:bg-white/20">
+              <Button variant="ghost" className="mb-4 text-white hover:bg-primary/70 transition-colors duration-300">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Voltar ao Portfólio
               </Button>
@@ -166,13 +167,19 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                   key={cat.category.id}
                   href={`/portfolio?category=${cat.category.slug}`}
                 >
-                  <span className="inline-flex items-center gap-1 bg-white/20 hover:bg-white/30 transition-colors px-3 py-1 rounded-full text-sm">
+                  <span className="inline-flex items-center gap-1 bg-primary/50 hover:bg-primary/30 transition-colors px-3 py-1 rounded-full text-sm">
                     <Tag className="h-3 w-3" />
                     {cat.category.name}
                   </span>
                 </Link>
               ))}
             </div>
+
+            {images.length > 0 && (
+              <div className="mt-6">
+                <OpenGalleryButton />
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -214,22 +221,22 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
           {/* Galeria com Lightbox */}
           {images.length > 0 && (
-            <div>
+            <div id="galeria">
               <h2 className="text-2xl font-bold mb-6">Galeria</h2>
               <ProjectGallery images={images} projectTitle={project.title} />
             </div>
           )}
 
           {/* CTA */}
-          <Card className="mt-16 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 border-purple-200 dark:border-purple-800">
+          <Card className="mt-16 bg-[linear-gradient(90deg,#edede9,#f5ebe0,#d5bdaf)] dark:bg-[linear-gradient(90deg,#cdc1b6,#a69e9a,#26292c)] border-primary dark:border-primary">
             <CardContent className="pt-8 pb-8 text-center">
               <h3 className="text-2xl font-bold mb-4">
                 Gostou do que viu?
               </h3>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-foreground mb-6">
                 Entre em contato para conversarmos sobre seu próximo projeto.
               </p>
-              <Button asChild size="lg">
+              <Button asChild size="lg" className='hover:bg-primary/50 transition-colors duration-300'>
                 <Link href="/#contato">
                   Solicitar Orçamento
                 </Link>

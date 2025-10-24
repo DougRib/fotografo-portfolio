@@ -104,7 +104,7 @@ export default function AboutPage() {
             </div>
 
             <div className="pt-6">
-              <Button asChild size="lg">
+              <Button asChild size="lg" className='hover:bg-primary/50 transition-colors duration-300'>
                 <Link href="/#contato">Entre em Contato</Link>
               </Button>
             </div>

@@ -7,7 +7,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Lightbox from 'yet-another-react-lightbox'
 import Zoom from 'yet-another-react-lightbox/plugins/zoom'
@@ -45,6 +45,33 @@ export function ProjectGallery({ images, projectTitle }: ProjectGalleryProps) {
     setLightboxIndex(index)
     setLightboxOpen(true)
   }
+
+  // Permitir abrir a galeria via hash (#galeria-open)
+  useEffect(() => {
+    const maybeOpenFromHash = () => {
+      if (typeof window === 'undefined') return
+      const hash = window.location.hash
+      if ((hash === '#galeria-open' || hash === '#galeria') && images.length > 0) {
+        setLightboxIndex(0)
+        setLightboxOpen(true)
+      }
+    }
+    maybeOpenFromHash()
+    window.addEventListener('hashchange', maybeOpenFromHash)
+    const handleOpenEvent = (e: Event) => {
+      const ce = e as CustomEvent<{ index?: number }>
+      const idx = typeof ce.detail?.index === 'number' ? ce.detail.index : 0
+      if (images.length > 0) {
+        setLightboxIndex(Math.max(0, Math.min(idx, images.length - 1)))
+        setLightboxOpen(true)
+      }
+    }
+    window.addEventListener('open-gallery', handleOpenEvent as EventListener)
+    return () => {
+      window.removeEventListener('hashchange', maybeOpenFromHash)
+      window.removeEventListener('open-gallery', handleOpenEvent as EventListener)
+    }
+  }, [images.length])
 
   return (
     <>

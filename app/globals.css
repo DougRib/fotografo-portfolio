@@ -259,6 +259,12 @@
   }
 }
 
+/* Marquee animation for testimonials */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 /* ============================================
    PRINT STYLES
    ============================================ */
@@ -271,4 +277,3 @@
     display: none !important;
   }
 }
-

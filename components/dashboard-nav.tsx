@@ -35,6 +35,11 @@ const navItems = [
     icon: ImageIcon,
   },
   {
+    title: 'Eventos',
+    href: '/dashboard/eventos',
+    icon: FolderOpen,
+  },
+  {
     title: 'Leads',
     href: '/dashboard/leads',
     icon: Users,

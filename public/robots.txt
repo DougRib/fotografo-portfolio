@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /login
+Disallow: /admin
+Disallow: /dashboard
+
+Sitemap: ${NEXT_PUBLIC_SITE_URL}/sitemap.xml
+

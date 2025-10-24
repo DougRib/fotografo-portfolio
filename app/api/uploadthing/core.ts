@@ -60,7 +60,8 @@ export const uploadThingFileRouter = {
     })
     .onUploadComplete(async ({ metadata, file }) => {
       // Este callback é executado após o upload ser concluído
-      console.log('✅ Upload concluído:', file.url)
+      const fileUrl = (file as any).ufsUrl || (file as any).url
+      console.log('✅ Upload concluído:', fileUrl)
       console.log('📋 Metadados:', metadata)
       
       // Aqui você pode:
@@ -71,7 +72,7 @@ export const uploadThingFileRouter = {
       
       try {
         // Baixar a imagem original
-        const response = await fetch(file.url)
+        const response = await fetch(fileUrl)
         const buffer = Buffer.from(await response.arrayBuffer())
         
         const sharp = await getSharp()
@@ -102,7 +103,7 @@ export const uploadThingFileRouter = {
         
         return {
           uploadedBy: metadata.userId,
-          fileUrl: file.url,
+          fileUrl,
           fileName: file.name,
           fileSize: file.size,
           width: imageMetadata.width,
@@ -113,10 +114,7 @@ export const uploadThingFileRouter = {
       } catch (error) {
         console.error('❌ Erro ao processar imagem:', error)
         // Mesmo se o processamento falhar, o upload principal foi bem-sucedido
-        return {
-          uploadedBy: metadata.userId,
-          fileUrl: file.url,
-        }
+        return { uploadedBy: metadata.userId, fileUrl }
       }
     }),
 
@@ -146,7 +144,7 @@ export const uploadThingFileRouter = {
       
       // Processar avatar (redimensionar para 200x200) - não usado por enquanto
       try {
-        const response = await fetch(file.url)
+        const response = await fetch((file as any).ufsUrl || (file as any).url)
         const buffer = Buffer.from(await response.arrayBuffer())
         const sharp = await getSharp()
         if (!sharp) {
@@ -166,7 +164,7 @@ export const uploadThingFileRouter = {
         console.error('❌ Erro ao processar avatar:', error)
       }
       
-      return { url: file.url }
+      return { url: (file as any).ufsUrl || (file as any).url }
     }),
 
   /**
@@ -219,11 +217,12 @@ export const uploadThingFileRouter = {
       return { userId: user.id }
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log('✅ Cover de projeto enviado:', file.url)
+      const fileUrl = (file as any).ufsUrl || (file as any).url
+      console.log('✅ Cover de projeto enviado:', fileUrl)
       
       // Gerar versões otimizadas da cover
       try {
-        const response = await fetch(file.url)
+        const response = await fetch(fileUrl)
         const buffer = Buffer.from(await response.arrayBuffer())
         const sharp = await getSharp()
         if (!sharp) {
@@ -242,14 +241,14 @@ export const uploadThingFileRouter = {
           .toBuffer()
         
         return {
-          url: file.url,
+          url: fileUrl,
           width: imageMetadata.width,
           height: imageMetadata.height,
           uploadedBy: metadata.userId,
         }
       } catch (error) {
         console.error('❌ Erro ao processar cover:', error)
-        return { url: file.url }
+        return { url: fileUrl }
       }
     }),
 } satisfies FileRouter

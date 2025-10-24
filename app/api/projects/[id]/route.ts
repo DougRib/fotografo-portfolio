@@ -9,7 +9,8 @@ const updateProjectSchema = z.object({
   title: z.string().min(3).max(200).optional(),
   slug: z.string().min(3).optional(),
   summary: z.string().max(500).nullable().optional(),
-  coverUrl: z.string().url().nullable().optional(),
+  coverUrl: z
+    .preprocess((v) => (v === '' ? null : v), z.string().url().nullable().optional()),
   status: z.nativeEnum(ProjectStatus).optional(),
   seoTitle: z.string().max(60).nullable().optional(),
   seoDesc: z.string().max(160).nullable().optional(),
@@ -19,7 +20,7 @@ const updateProjectSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  ctx: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAdmin()
@@ -28,6 +29,7 @@ export async function PATCH(
     }
     const body = await request.json()
     const data = updateProjectSchema.parse(body)
+    const { id } = await ctx.params
 
     // Se slug não fornecido mas título mudou, gerar slug
     let resolvedSlug = data.slug
@@ -66,7 +68,7 @@ export async function PATCH(
     }
 
     const project = await prisma.project.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         gallery: true,
@@ -93,14 +95,15 @@ export async function PATCH(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  ctx: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAdmin()
     if (!auth.allowed) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: auth.status })
     }
-    await prisma.project.delete({ where: { id: params.id } })
+    const { id } = await ctx.params
+    await prisma.project.delete({ where: { id } })
     return NextResponse.json({ message: 'Projeto removido com sucesso' })
   } catch (error) {
     console.error('Erro ao deletar projeto:', error)

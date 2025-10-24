@@ -18,31 +18,22 @@ import { ContactForm } from '@/components/contact-form'
 import { prisma } from '@/lib/prisma'
 import { ProjectStatus } from '@prisma/client'
 import { HeroSlideshow } from '@/components/hero-slideshow'
+import { TestimonialsScroller } from '@/components/testimonials-scroller'
 
 // Revalidar a cada 1 hora
 export const revalidate = 3600
 
 async function getHomeData() {
   // Buscar dados necessários para a home
-  const [featuredProjects, services, testimonials, heroImages] = await Promise.all([
+  const [featuredProjects, services, testimonials, heroImages, eventsProjects] = await Promise.all([
     // 6 projetos publicados mais recentes
     prisma.project.findMany({
       where: { status: ProjectStatus.PUBLISHED },
       orderBy: { publishedAt: 'desc' },
       take: 6,
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        summary: true,
-        coverUrl: true,
-        categories: {
-          select: {
-            category: {
-              select: { name: true, slug: true },
-            },
-          },
-        },
+      include: {
+        categories: { include: { category: true } },
+        gallery: { include: { images: { take: 1, orderBy: { order: 'asc' } } } },
       },
     }),
     // Serviços ativos
@@ -77,7 +68,20 @@ async function getHomeData() {
         },
       },
     }),
-  ])
+    // Eventos recentes (categoria "eventos")
+    prisma.project.findMany({
+      where: {
+        status: ProjectStatus.PUBLISHED,
+        categories: { some: { category: { slug: 'eventos' } } },
+      },
+      orderBy: { publishedAt: 'desc' },
+      take: 6,
+      include: {
+        categories: { include: { category: true } },
+        gallery: { include: { images: { take: 1, orderBy: { order: 'asc' } } } },
+      },
+    }),
+  ] as const)
   // Transformar os projetos no formato que o HeroSlideshow espera
   const heroImagesFormatted = heroImages.map(project => ({
     url: project.coverUrl!,
@@ -85,11 +89,11 @@ async function getHomeData() {
     category: project.categories[0]?.category.name,
   }))
 
-  return { featuredProjects, services, testimonials, heroImages: heroImagesFormatted }
+  return { featuredProjects, services, testimonials, heroImages: heroImagesFormatted, eventsProjects }
 }
 
 export default async function HomePage() {
-  const { featuredProjects, services, testimonials, heroImages } = await getHomeData()
+  const { featuredProjects, services, testimonials, heroImages, eventsProjects } = await getHomeData()
   
   //const photographerName = process.env.NEXT_PUBLIC_PHOTOGRAPHER_NAME || 'Fotógrafo'
   const photographerCity = process.env.NEXT_PUBLIC_PHOTOGRAPHER_CITY || 'Sua Cidade'
@@ -103,52 +107,55 @@ export default async function HomePage() {
         autoPlayInterval={5000}
       />
 
-      {/* PORTFÓLIO DESTACADO */}
+      {/* ENSAIOS DESTACADOS */}
       <section className="bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)] py-20">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Portfólio</h2>
+            <h2 className="text-4xl font-bold mb-4">Ensaios</h2>
             <p className="text-lg text-secondary-foreground">
               Alguns dos trabalhos mais recentes
             </p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredProjects.map((project) => (
-              <Link
-                key={project.id}
-                href={`/portfolio/${project.slug}`}
-                className="group relative overflow-hidden shadow dark:hover:shadow-primary/100 glass rounded-lg aspect-[4/3]"
-              >
-                {project.coverUrl && (
-                  <Image
-                    src={project.coverUrl}
-                    alt={project.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-300 group-hover:scale-110 "
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                  <h3 className="text-xl font-bold mb-2">{project.title}</h3>
-                  {project.summary && (
-                    <p className="text-sm text-white/90 line-clamp-2">{project.summary}</p>
+            {featuredProjects.map((project) => {
+              const displayCover = project.coverUrl || project.gallery?.images?.[0]?.url
+              return (
+                <Link
+                  key={project.id}
+                  href={`/portfolio/${project.slug}`}
+                  className="group relative overflow-hidden shadow dark:hover:shadow-primary/100 glass border-primary rounded-lg aspect-[4/3]"
+                >
+                  {displayCover && (
+                    <Image
+                      src={displayCover}
+                      alt={project.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-110 "
+                    />
                   )}
-                  {project.categories[0] && (
-                    <span className="inline-block mt-2 text-xs bg-white/20 px-2 py-1 rounded">
-                      {project.categories[0].category.name}
-                    </span>
-                  )}
-                </div>
-              </Link>
-            ))}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                    <h3 className="text-xl font-bold mb-2">{project.title}</h3>
+                    {project.summary && (
+                      <p className="text-sm text-white/90 line-clamp-2">{project.summary}</p>
+                    )}
+                    {project.categories?.[0] && (
+                      <span className="inline-block mt-2 text-xs bg-primary/60 px-2 py-1 rounded">
+                        {project.categories[0].category.name}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              )
+            })}
           </div>
 
           <div className="text-center mt-12">
             <Button asChild size="lg" className='group'>
               <Link href="/portfolio">
-                Ver Portfólio Completo 
+                Ver Portfólio completo
                 <ArrowRight 
                   aria-hidden="true"
                   className="ml-2 h-5 w-5 motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out
@@ -161,8 +168,62 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* EVENTOS DESTACADOS */}
+      <section className="bg-background py-20">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-3xl text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Eventos</h2>
+            <p className="text-lg text-muted-foreground">Alguns eventos recentes que cobri</p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {eventsProjects.map((project) => {
+              const displayCover = project.coverUrl || project.gallery?.images?.[0]?.url
+              return (
+                <Link
+                  key={project.id}
+                  href={`/portfolio/${project.slug}`}
+                  className="group relative overflow-hidden shadow border-primary dark:hover:shadow-primary/100 glass rounded-lg aspect-[4/3]"
+                >
+                  {displayCover && (
+                    <Image
+                      src={displayCover}
+                      alt={project.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                    <h3 className="text-xl font-bold mb-2">{project.title}</h3>
+                    {project.summary && (
+                      <p className="text-sm text-white/90 line-clamp-2">{project.summary}</p>
+                    )}
+                    {project.categories?.[0] && (
+                      <span className="inline-block mt-2 text-xs bg-primary/60 px-2 py-1 rounded">
+                        {project.categories[0].category.name}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button asChild size="lg" className='group'>
+              <Link href="/eventos">
+                Ver Portfólio completo
+                <ArrowRight aria-hidden="true" className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* SERVIÇOS SECTION */}
-      <section id="servicos" className="bg-background py-20">
+      <section id="servicos" className="bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)] py-20">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Serviços</h2>
@@ -203,59 +264,18 @@ export default async function HomePage() {
       </section>
 
       {/* DEPOIMENTOS */}
-      <section className="bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)] py-20">
+      <section className="bg-background py-20">
         <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center mb-16">
+          <div className="mx-auto max-w-3xl text-center mb-10">
             <h2 className="text-4xl font-bold mb-4">Depoimentos</h2>
-            <p className="text-lg text-muted-foreground">
-              O que nossos clientes dizem
-            </p>
+            <p className="text-lg text-foreground">O que nossos clientes dizem</p>
           </div>
-
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {testimonials.map((testimonial) => (
-              <Card key={testimonial.id}>
-                <CardContent className="pt-6 ">
-                  <div className="flex items-center gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className="h-5 w-5 fill-yellow-400"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground mb-4">&ldquo;{testimonial.text}&rdquo;</p>
-                  <div className="flex items-center gap-3 ">
-                    {testimonial.avatarUrl && (
-                      <div className="relative h-10 w-10 rounded-full overflow-hidden ">
-                        <Image
-                          src={testimonial.avatarUrl}
-                          alt={testimonial.author}
-                          fill
-                          sizes="40px"
-                          className="object-cover"
-                        />
-                      </div>
-                    )}
-                    <div>
-                      <p className="font-semibold">{testimonial.author}</p>
-                      {testimonial.role && (
-                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <TestimonialsScroller items={testimonials} />
         </div>
       </section>
 
       {/* DIFERENCIAIS */}
-      <section className="bg-background py-20">
+      <section className="bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)] py-20">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-5xl">
             <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
@@ -304,7 +324,7 @@ export default async function HomePage() {
       </section>
 
       {/* FORMULÁRIO DE CONTATO */}
-      <section id="contato" className="bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)] py-20">
+      <section id="contato" className="bg-backgound py-20">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl">
             <div className="text-center mb-12">

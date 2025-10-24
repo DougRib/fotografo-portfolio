@@ -17,7 +17,8 @@ const createProjectSchema = z.object({
   title: z.string().min(3).max(200),
   slug: z.string().optional(),
   summary: z.string().max(500).optional(),
-  coverUrl: z.string().url().optional(),
+  // Permite string vazia no formulário e valida URL quando presente
+  coverUrl: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
   status: z.nativeEnum(ProjectStatus).default(ProjectStatus.DRAFT),
   seoTitle: z.string().max(60).optional(),
   seoDesc: z.string().max(160).optional(),

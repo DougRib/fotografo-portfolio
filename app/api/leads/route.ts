@@ -109,9 +109,10 @@ export async function POST(request: NextRequest) {
 
     try {
       await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL!,
+        from: `${process.env.NEXT_PUBLIC_PHOTOGRAPHER_NAME || 'Portfólio'} <${process.env.RESEND_FROM_EMAIL!}>`,
         to: emailTo!,
         subject: `🎯 Novo Lead: ${validatedData.name}`,
+        reply_to: validatedData.email,
         html: `
           <!DOCTYPE html>
           <html>
@@ -209,9 +210,10 @@ export async function POST(request: NextRequest) {
 
       // 5. Enviar e-mail de confirmação para o cliente
       await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL!,
+        from: `${process.env.NEXT_PUBLIC_PHOTOGRAPHER_NAME || 'Portfólio'} <${process.env.RESEND_FROM_EMAIL!}>`,
         to: validatedData.email,
         subject: `Recebemos seu contato, ${validatedData.name}!`,
+        reply_to: emailTo!,
         html: `
           <!DOCTYPE html>
           <html>

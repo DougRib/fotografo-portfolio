@@ -127,9 +127,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     <div className="min-h-screen bg-background">
       {/* Header com imagem de capa */}
       <section className="relative h-[60vh] min-h-[400px]">
-        {project.coverUrl && (
+        {(project.coverUrl || images[0]?.url) && (
           <Image
-            src={project.coverUrl}
+            src={project.coverUrl || images[0]!.url}
             alt={project.title}
             fill
             priority

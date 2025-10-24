@@ -37,7 +37,7 @@ export default function CategoriesPage() {
       const res = await fetch('/api/categories')
       const data = await res.json()
       setItems(data)
-    } catch (e) {
+    } catch {
       toast.error('Erro ao carregar categorias')
     } finally {
       setLoading(false)
@@ -68,7 +68,7 @@ export default function CategoriesPage() {
       toast.success('Categoria removida!')
       fetchItems()
       router.refresh()
-    } catch (e) {
+    } catch {
       toast.error('Erro ao deletar categoria')
     } finally {
       setDeletingId(null)
@@ -99,14 +99,21 @@ export default function CategoriesPage() {
           <CardDescription>Adicione uma nova categoria</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col sm:flex-row gap-3">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col sm:flex-row gap-3 sm:items-end">
             <div className="flex-1">
               <Label htmlFor="name">Nome</Label>
               <Input id="name" placeholder="Ex: Casamento" {...register('name')} disabled={isSubmitting} />
               {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>}
             </div>
             <Button type="submit" className="self-end sm:self-auto min-w-[140px]" disabled={isSubmitting}>
-              {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...</>) : (<><Plus className="mr-2 h-4 w-4" /> Adicionar</>)}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...</>) 
+                  : 
+                  (
+                    <>
+                      <Plus className="mr-2 h-4 w-4" /> Adicionar</>
+              )}
             </Button>
           </form>
         </CardContent>

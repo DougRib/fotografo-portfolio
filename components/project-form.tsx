@@ -58,7 +58,7 @@ const projectSchema = z.object({
 
 type ProjectFormData = z.infer<typeof projectSchema>
 
-// Props do componente
+  // Props do componente
 interface ProjectFormProps {
   // Se tiver project, está editando. Se não tiver, está criando.
   project?: {
@@ -256,6 +256,46 @@ export function ProjectForm({ project, categories, tags }: ProjectFormProps) {
             {errors.coverUrl && (
               <p className="text-sm text-red-600">{errors.coverUrl.message}</p>
             )}
+          </div>
+
+          {/* Categorias */}
+          <div className="space-y-2">
+            <Label>Categorias</Label>
+            <select
+              multiple
+              className="flex min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              value={watch('categoryIds') as unknown as string[] | undefined}
+              onChange={(e) => {
+                const values = Array.from(e.currentTarget.selectedOptions).map((o) => o.value)
+                setValue('categoryIds', values)
+              }}
+              disabled={isSubmitting}
+            >
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+            <p className="text-xs text-muted-foreground">Selecione uma ou mais categorias</p>
+          </div>
+
+          {/* Tags */}
+          <div className="space-y-2">
+            <Label>Tags</Label>
+            <select
+              multiple
+              className="flex min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              value={watch('tagIds') as unknown as string[] | undefined}
+              onChange={(e) => {
+                const values = Array.from(e.currentTarget.selectedOptions).map((o) => o.value)
+                setValue('tagIds', values)
+              }}
+              disabled={isSubmitting}
+            >
+              {tags.map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+            <p className="text-xs text-muted-foreground">Selecione tags relacionadas (opcional)</p>
           </div>
 
           {/* Status */}

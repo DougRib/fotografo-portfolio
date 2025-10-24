@@ -79,7 +79,7 @@ export function Footer() {
                 href="/portfolio"
                 className="text-sm text-secondary-foreground hover:text-primary transition-colors duration-200"
               >
-                Portfólio
+                Ensaios
               </Link>
               <Link 
                 href="/sobre"

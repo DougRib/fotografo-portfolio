@@ -15,8 +15,8 @@ import { Card, CardContent } from '@/components/ui/card'
 
 // Metadados da página
 export const metadata: Metadata = {
-  title: 'Portfólio',
-  description: 'Veja todos os nossos trabalhos de fotografia profissional.',
+  title: 'Ensaios',
+  description: 'Veja todos os nossos ensaios de fotografia profissional.',
 }
 
 // Revalidar a cada 30 minutos
@@ -39,9 +39,14 @@ async function getPortfolioData(searchParams: {
   const perPage = 12
   const skip = (page - 1) * perPage
 
-  // Construir filtros
+  // Construir filtros (Ensaios apenas: excluir categoria "eventos")
   const where: Prisma.ProjectWhereInput = {
     status: ProjectStatus.PUBLISHED,
+    NOT: {
+      categories: {
+        some: { category: { slug: 'eventos' } },
+      },
+    },
   }
 
   if (searchParams.category) {
@@ -71,31 +76,15 @@ async function getPortfolioData(searchParams: {
       orderBy: { publishedAt: 'desc' },
       skip,
       take: perPage,
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        summary: true,
-        coverUrl: true,
-        publishedAt: true,
-        categories: {
-          select: {
-            category: {
-              select: { name: true, slug: true },
-            },
-          },
-        },
-        tags: {
-          select: {
-            tag: {
-              select: { name: true, slug: true },
-            },
-          },
-        },
+      include: {
+        categories: { include: { category: true } },
+        tags: { include: { tag: true } },
+        gallery: { include: { images: { take: 1, orderBy: { order: 'asc' } } } },
       },
     }),
     prisma.project.count({ where }),
     prisma.category.findMany({
+      where: { slug: { not: 'eventos' } },
       orderBy: { name: 'asc' },
     }),
     prisma.tag.findMany({
@@ -117,7 +106,7 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
       {/* Header */}
       <section className="border-b bg-[linear-gradient(90deg,#858a86,#a6aab9,#ededed)] dark:bg-[linear-gradient(90deg,#4f6166,#c8bbb4)]">
         <div className="container mx-auto px-4 py-16">
-          <h1 className="text-4xl font-bold mb-4">Portfólio</h1>
+          <h1 className="text-4xl font-bold mb-4">Ensaios</h1>
           <p className="text-lg text-secondary-foreground max-w-2xl">
             Explore nossa coleção de trabalhos em fotografia profissional.
             Cada projeto conta uma história única.
@@ -211,9 +200,9 @@ export default async function PortfolioPage({ searchParams }: PortfolioPageProps
                     >
                       <Card className="group overflow-hidden hover:shadow-xl glass transition-shadow">
                         <div className="relative aspect-[4/3] overflow-hidden">
-                          {project.coverUrl && (
+                          {(project.coverUrl || project.gallery?.images?.[0]?.url) && (
                             <Image
-                              src={project.coverUrl}
+                              src={project.coverUrl || project.gallery!.images[0]!.url}
                               alt={project.title}
                               fill
                               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

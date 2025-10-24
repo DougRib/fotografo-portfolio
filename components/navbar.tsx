@@ -39,7 +39,11 @@ const navigationLinks = [
     href: `/#${HERO_ID}`,
   },
   {
-    label: 'Portfólio',
+    label: 'Eventos',
+    href: '/eventos',
+  },
+  {
+    label: 'Ensaios',
     href: '/portfolio',
   },
   {
@@ -198,9 +202,8 @@ export function SiteNavbar() {
             })}
           </div>
 
-          {/* AÇÕES DA DIREITA - DESKTOP */}
+          {/* AÇÕES DA DIREITA - DESKTOP (apenas tema) */}
           <div className="hidden md:flex items-center gap-2">
-            {/* Toggle Dark/Light Mode */}
             <Button
               variant="ghost"
               size="icon"
@@ -216,15 +219,6 @@ export function SiteNavbar() {
                 <Moon className="h-5 w-5" />
               )}
               <span className="sr-only">Alternar tema</span>
-            </Button>
-
-            {/* Botão de Login */}
-            <Button
-              asChild
-              variant={hasScrolled ? "default" : "secondary"}
-              size="sm"
-            >
-              <Link href="/login">Login</Link>
             </Button>
           </div>
 
@@ -248,23 +242,23 @@ export function SiteNavbar() {
               )}
             </Button>
 
-            {/* Botão hamburger */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={cn(
-                "rounded-full",
-                !hasScrolled && "text-white hover:bg-white/10"
-              )}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-              <span className="sr-only">Menu</span>
-            </Button>
+          {/* Botão hamburger */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className={cn(
+              "rounded-full",
+              !hasScrolled && "text-white hover:bg-white/10"
+            )}
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+            <span className="sr-only">Menu</span>
+          </Button>
           </div>
         </div>
       </div>
@@ -303,14 +297,7 @@ export function SiteNavbar() {
             )
           })}
 
-          {/* Botão de Login mobile */}
-          <Button
-            asChild
-            className="w-full"
-            onClick={closeMobileMenu}
-          >
-            <Link href="/login">Login</Link>
-          </Button>
+          {/* Sem botão de login no menu mobile */}
         </div>
       </div>
     </nav>

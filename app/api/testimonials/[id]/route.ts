@@ -5,8 +5,8 @@ import { requireAdmin } from '@/lib/authz'
 
 const testimonialSchema = z.object({
   author: z.string().min(2).optional(),
-  role: z.string().nullable().optional(),
-  avatarUrl: z.string().url().nullable().optional(),
+  role: z.string().optional().transform((v) => (v === '' ? null : v)),
+  avatarUrl: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
   text: z.string().min(20).optional(),
   visible: z.boolean().optional(),
 })

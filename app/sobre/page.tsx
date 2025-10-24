@@ -231,7 +231,7 @@ export default function AboutPage() {
                 <Link href="/#contato">Solicitar Orçamento</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link href="/portfolio">Ver Portfólio</Link>
+                <Link href="/portfolio">Ver Ensaios</Link>
               </Button>
             </div>
           </CardContent>

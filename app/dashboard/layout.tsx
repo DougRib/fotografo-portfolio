@@ -6,15 +6,24 @@
  */
 
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { DashboardNav } from '@/components/dashboard-nav'
 import { Camera } from 'lucide-react'
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Server-side auth guard (belt-and-suspenders with middleware)
+  const session = await getServerSession(authOptions)
+  if (!session) {
+    redirect('/login?callbackUrl=/dashboard')
+  }
+
   return (
     <div className="flex min-h-screen">
       {/* Sidebar - Desktop */}

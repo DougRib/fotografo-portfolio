@@ -28,7 +28,14 @@ async function getHomeData() {
   const [featuredProjects, services, testimonials, heroImages, eventsProjects] = await Promise.all([
     // 6 projetos publicados mais recentes
     prisma.project.findMany({
-      where: { status: ProjectStatus.PUBLISHED },
+      where: {
+        status: ProjectStatus.PUBLISHED,
+        NOT: {
+          categories: {
+            some: { category: { slug: 'eventos' } },
+          },
+        },
+      },
       orderBy: { publishedAt: 'desc' },
       take: 6,
       include: {
